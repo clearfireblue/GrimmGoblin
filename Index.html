@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Horde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#cfd3bd;--panel:#dde0cd;--field:#e9ebdc;--ink:#1e2116;--muted:#535a45;--line:#a9b092;--accent:#4e6b17;--blood:#8e2a1c;--gold:#7d5f08;--kin:#2f5f6e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12150f;--panel:#1c2117;--field:#161a12;--ink:#e2dfc8;--muted:#a2a68e;--line:#3a412e;--accent:#a8c55a;--blood:#e0705c;--gold:#e0b347;--kin:#7fb8c8}}
+:root[data-theme="dark"]{--bg:#12150f;--panel:#1c2117;--field:#161a12;--ink:#e2dfc8;--muted:#a2a68e;--line:#3a412e;--accent:#a8c55a;--blood:#e0705c;--gold:#e0b347;--kin:#7fb8c8}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Alegreya Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3,.goth{font-family:"Grenze Gotisch","Iowan Old Style",Georgia,serif;font-weight:500;margin:0;line-height:1.1}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 16px 56px}
+header.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between;padding-bottom:14px;border-bottom:2px solid var(--line)}
+.hname{font:inherit;font-family:"Grenze Gotisch",Georgia,serif;font-weight:700;font-size:clamp(30px,6vw,56px);line-height:1.05;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:4px;padding:0 6px;margin-left:-6px;width:100%;text-overflow:ellipsis}
+.hname:hover{border-color:var(--line)}
+.hname:focus{background:var(--field);border-color:var(--accent);outline:none}
+.sub{margin:4px 0 0;color:var(--muted);font-style:italic}
+.wants{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;color:var(--muted)}
+.wants b{display:block;font-family:"Grenze Gotisch",Georgia,serif;font-weight:500;font-size:26px;color:var(--ink);line-height:1}
+.wants .hot b{color:var(--blood)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 18px}
+button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 14px;cursor:pointer;min-height:44px}
+button:hover{border-color:var(--muted)}
+button.main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seed{font-size:14px;color:var(--muted)}
+nav.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:14px;max-width:420px}
+nav.tabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;color:var(--muted)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.grid{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start;max-width:900px}
+.grid[hidden],.webpane[hidden]{display:none}
+.webpane{max-width:900px}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}
+.pane h2{font-size:26px;margin-bottom:8px}
+ul.roster{list-style:none;margin:0;padding:0}
+ul.roster li button{width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;border-radius:0;padding:6px 8px;display:block;min-height:44px}
+ul.roster li button:hover{background:var(--field)}
+ul.roster li button[aria-current="true"]{background:var(--field);border-left-color:var(--accent)}
+.rn{font-weight:700;display:block}
+.rj{font-size:14px;color:var(--muted)}
+.rj .hot{color:var(--blood)}
+.webwrap{overflow-x:auto}
+svg.web{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+svg.web .node{cursor:pointer}
+svg.web .node circle{fill:var(--field);stroke:var(--line);stroke-width:2}
+svg.web .node.sel circle{stroke:var(--accent);stroke-width:4}
+svg.web .node text{fill:var(--ink);font-size:13px;text-anchor:middle;font-family:"Alegreya Sans",sans-serif}
+svg.web .node text.ini{font-family:"Grenze Gotisch",serif;font-size:20px;dominant-baseline:central}
+svg.web line{stroke-width:2}
+svg.web line.friend{stroke:var(--accent)}
+svg.web line.rival{stroke:var(--blood);stroke-dasharray:6 5}
+svg.web line.kin{stroke:var(--kin);stroke-width:3}
+svg.web line.dim{opacity:.12}
+.legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:14px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.legend .f{border-color:var(--accent)}.legend .r{border-color:var(--blood);border-top-style:dashed}.legend .k{border-color:var(--kin)}
+.nm{font:inherit;font-family:"Grenze Gotisch",Georgia,serif;font-size:30px;font-weight:700;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:4px;padding:0 4px;margin-left:-4px;width:100%}
+.nm:hover{border-color:var(--line)}
+.nm:focus{background:var(--field);border-color:var(--accent);outline:none}
+.job{margin:2px 0 6px;font-weight:500}
+.blurb{margin:0 0 10px;color:var(--muted);font-style:italic}
+.d h3{font-size:21px;margin:14px 0 6px}
+.stats{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center}
+.track{height:10px;background:var(--field);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.track span{display:block;height:100%;background:var(--accent)}
+.stats .v{font-family:"Grenze Gotisch",serif;font-size:20px;min-width:1.5em;text-align:right}
+ul.needs{list-style:none;margin:0;padding:0}
+ul.needs li{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dotted var(--line)}
+.pips{letter-spacing:2px;color:var(--muted)}
+.lv2{color:var(--gold)}.lv3{color:var(--blood);font-weight:700}
+.mood{margin:8px 0 0}
+.mood em{font-family:"Grenze Gotisch",serif;font-style:normal;font-size:20px}
+ul.quirks{margin:0;padding-left:20px}
+ul.ties{list-style:none;margin:0;padding:0}
+ul.ties li{padding:4px 0}
+ul.ties button{background:none;border:0;padding:0;min-height:auto;color:var(--ink);text-decoration:underline;font-weight:700}
+.tk{font-size:13px;padding:0 7px;border-radius:9px;border:1px solid currentColor;margin-right:6px}
+.tk.friend{color:var(--accent)}.tk.rival{color:var(--blood)}.tk.kin{color:var(--kin)}
+.why{color:var(--muted);font-size:15px}
+.empty{color:var(--muted)}
+nav.sect{display:flex;gap:6px;margin:0 0 14px}
+nav.sect button{font-family:"Grenze Gotisch",Georgia,serif;font-size:24px;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;padding:4px 12px;color:var(--muted)}
+nav.sect button[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent)}
+[data-sect][hidden]{display:none}
+.mstack{display:grid;gap:16px;max-width:980px}
+.mstack .mlist{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.mtop{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.day{font-family:"Grenze Gotisch",serif;font-size:34px;margin:0}
+.mlist{display:grid;gap:8px;margin:10px 0}
+.mcard{display:block;width:100%;text-align:left;background:var(--field);padding:10px 12px}
+.mcard[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.mcard b{font-family:"Grenze Gotisch",serif;font-weight:500;font-size:22px;display:block;line-height:1.1}
+.mcard small{color:var(--muted);font-size:14px}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin:8px 0}
+.pick button{text-align:left;padding:6px 10px;background:var(--field)}
+.pick button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.pick button:disabled{opacity:.45;cursor:not-allowed}
+.pick small{display:block;color:var(--muted);font-size:13px}
+.preview{background:var(--field);border:1px dashed var(--line);border-radius:4px;padding:8px 12px;margin:8px 0}
+.tokens{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.tokens i{width:16px;height:16px;border-radius:50%;border:2px solid var(--blood);display:inline-block}
+.tokens i.on{background:var(--blood)}
+.party{display:flex;flex-wrap:wrap;gap:6px 14px;margin:6px 0;font-size:15px}
+.party .w{color:var(--gold)}.party .x{color:var(--blood);text-decoration:line-through}
+.log{list-style:none;margin:8px 0;padding:0;max-height:340px;overflow:auto;border-top:1px solid var(--line)}
+.log li{padding:4px 0;border-bottom:1px dotted var(--line);font-size:15px}
+.log li.hit{color:var(--ink)}.log li.miss{color:var(--muted)}.log li.bad{color:var(--blood)}.log li.say{font-style:italic;color:var(--kin)}.log li.good{color:var(--accent)}.log li.rnd{font-family:"Grenze Gotisch",serif;font-size:18px;color:var(--ink)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+details.how{margin-top:14px;font-size:15px;color:var(--muted)}
+details.how summary{cursor:pointer;color:var(--ink)}
+.mapgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;max-width:1080px}
+.mapwrap{--parch:#e6d7b3;--parch2:#cdb67f;--mink:#3a2c18;--fk:#9a6a00;--fd:#2b5b7e;--fv:#4f7a1a;--fg:#a32c1c;--fw:#6e4f93;--fh:#1f1810}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .mapwrap{--parch:#cbbb92;--parch2:#a8925e}}
+:root[data-theme="dark"] .mapwrap{--parch:#cbbb92;--parch2:#a8925e}
+svg.map{display:block;width:100%;height:auto;border-radius:6px}
+svg.map .trail{fill:none;stroke:var(--mink);stroke-width:2.2;stroke-dasharray:7 5;stroke-linecap:round;opacity:.75}
+svg.map .trail.stub{stroke-dasharray:2 6;opacity:.45}
+svg.map .pl{cursor:pointer}
+svg.map .pl .badge{fill:var(--parch);stroke-width:2.5}
+svg.map .pl.sel .badge{stroke-width:4.5}
+svg.map .pl .ring{fill:none;stroke:var(--mink);stroke-width:1.5;stroke-dasharray:3 3;opacity:0}
+svg.map .pl.sel .ring{opacity:.9}
+svg.map text.lbl{fill:var(--mink);font-size:15px;text-anchor:middle;font-family:"Grenze Gotisch",Georgia,serif;paint-order:stroke;stroke:var(--parch);stroke-width:4px;stroke-linejoin:round}
+svg.map text.deco{fill:var(--mink);opacity:.55;font-family:"Grenze Gotisch",Georgia,serif;text-anchor:middle}
+.flegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--muted);margin-top:8px}
+.flegend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.chron{margin-top:14px}
+.chron summary{cursor:pointer;font-family:"Grenze Gotisch",serif;font-size:22px}
+.cday{margin:6px 0}.cday b{font-size:14px;color:var(--muted);font-weight:700}
+.cday ul{margin:2px 0 0;padding-left:18px;font-size:15px}
+.rep li.say{font-style:italic;color:var(--kin)}
+.slots{max-width:980px;margin:0 0 16px}
+.slotlist{list-style:none;margin:0 0 8px;padding:0}
+.slotlist li{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dotted var(--line)}
+.slotlist li.cur b{color:var(--accent)}
+.slotlist small{display:block;color:var(--muted);font-size:14px}
+.slotlist .acts{margin:0}
+.mapscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fallen{margin-top:10px;font-size:14px;color:var(--muted)}
+.st{font-size:14px;color:var(--muted)}.st .w{color:var(--gold)}
+@media (max-width:720px){
+  .wrap{padding:12px 12px 48px}
+  .mapgrid{grid-template-columns:minmax(0,1fr)}
+  svg.map{min-width:560px}
+  header.top{gap:8px 16px;padding-bottom:10px}
+  .wants{gap:12px;font-size:14px}.wants b{font-size:22px}
+  .bar{margin:8px 0 10px}
+  nav.sect{margin-bottom:10px}nav.sect button{font-size:21px;padding:4px 8px}
+  .pane{padding:10px}
+  .pick{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mstack .mlist{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mcard{padding:8px 10px}.mcard b{font-size:19px}
+  .day{font-size:28px}
+  .log{max-height:none}
+  .acts button{flex:1 1 auto}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  ul.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div style="flex:1 1 100%">
+      <label for="hname" class="seed">The horde calls itself</label>
+      <input id="hname" class="hname" autocomplete="off" spellcheck="false">
+      <p class="sub" id="hsub"></p>
+    </div>
+    <div class="wants" id="wants" aria-label="What the horde wants"></div>
+  </header>
+  <div class="bar">
+    <button id="slotBtn" aria-expanded="false" aria-controls="slots">Hordes</button>
+    <span class="seed" id="seedLbl"></span>
+  </div>
+  <div class="pane slots" id="slots" hidden></div>
+  <nav class="sect" aria-label="Sections"><button data-s="horde" aria-current="page">Horde</button><button data-s="missions">Missions</button><button data-s="map">Map</button></nav>
+  <div data-sect="horde">
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" data-t="gobs" aria-selected="true">Goblins</button>
+    <button role="tab" data-t="web" aria-selected="false">Web</button>
+  </nav>
+  <div class="grid" data-pane="gobs">
+    <section class="pane" aria-label="Goblins"><h2>Goblins</h2><ul class="roster" id="roster"></ul></section>
+    <section class="pane d" aria-label="Goblin detail" id="detail"></section>
+  </div>
+  <section class="pane webpane" data-pane="web" hidden aria-label="Who likes whom"><h2>Who likes whom</h2><div class="webwrap"><svg class="web" id="web" viewBox="0 0 600 560" role="img" aria-label="Ties between goblins"></svg></div>
+      <div class="legend"><span><i class="f"></i>Friend</span><span><i class="r"></i>Rival</span><span><i class="k"></i>Kin</span></div><p class="seed" style="text-align:center;margin:6px 0 0">Tap a goblin to see their ties. Tap again to open them.</p></section>
+  </div>
+  <div data-sect="missions" hidden><div class="mstack"><section class="pane" id="mday" aria-label="Today"></section><section class="pane" id="mmain" aria-label="Mission"></section><section class="pane" id="mrep" aria-label="Report and chronicle"></section></div></div>
+  <div data-sect="map" hidden><div class="mapgrid"><section class="pane mapwrap" aria-label="Map"><div class="mapscroll"><svg class="map" id="mapsvg" viewBox="0 0 600 420" role="img" aria-label="Known places and paths"></svg></div>
+    <div class="flegend"><span><i style="background:var(--fh)"></i>Warren</span><span><i style="background:var(--fk)"></i>Knights</span><span><i style="background:var(--fd)"></i>Dwarves</span><span><i style="background:var(--fv)"></i>Villagers</span><span><i style="background:var(--fg)"></i>Dogs</span><span><i style="background:var(--fw)"></i>Wild</span></div></section>
+    <section class="pane d" id="mapside" aria-label="Place"></section></div></div>
+</div>
+
+<script>
+/* ---------- generation (pure) ---------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let R=Math.random;
+const ri=(a,b)=>a+Math.floor(R()*(b-a+1));
+const pick=a=>a[Math.floor(R()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a}
+
+const STATS=['Sneak','Hit','Inspect','Trap'];
+const NEEDS=['Grub','Booze','Shinies','Sleep'];
+const NEEDW={Grub:['Stuffed','Peckish','Hungry','Starving'],Booze:['Soused','Dry','Parched','Desperate'],Shinies:['Glittering','Wanting','Grasping','Bereft'],Sleep:['Rested','Yawning','Bleary','Asleep standing']};
+const LEVELW=['Met','Wanting','Pressing','Aching'];
+
+/* guttural names */
+const G_ON=['Gr','Sk','Skr','Kr','Br','Gn','Sn','Vr','Dr','Zr','Gl','Bl','Thr','Ug','Ruk','Mog','Nar','Zug','Bol','Grot','Snik','Gob','Hrr','Kl'];
+const G_V=['u','a','o','i','ee','aa','uu','e','oo'];
+const G_END=['nak','g','rk','zz','b','ub','ash','gul','tch','nk','rot','gash','sk','kle','snik','dug','mar','zik','grub','lob','gat','nob'];
+function gutturalName(){
+  let n=pick(G_ON)+pick(G_V)+pick(G_END);
+  if(R()<.2)n+=pick(['-'+pick(G_ON).toLowerCase()+pick(G_V)+pick(['k','g','z','b']), '\u2019'+pick(['ak','ug','ik','oz'])]);
+  return n;
+}
+/* nicknames */
+const NK_ADJ=['Mud','Wet','Grub','Soot','Moss','Bent','Half','Rot','Sour','Lump','Damp','Grim','Slop','Crook','Spit','Ash','Bog','Scab'];
+const NK_BODY=['foot','nose','ear','tooth','knee','gut','toe','eye','thumb','lip','neck','belly','chin','knuckle'];
+const NK_THING=['Toenail','Kettle','Ladle','Spoon','Boot','Bucket','Teeth','Gristle','Sprocket','Puddle','Cabbage','Rat','Candle','Noodle','Scrap','Mouldy'];
+const NK_VERB=['Licker','Biter','Sniffer','Kicker','Gnawer','Stabber','Counter','Hoarder','Muncher','Lurker','Picker','Dropper'];
+function nickname(){
+  const k=ri(0,4);
+  if(k===0)return pick(NK_ADJ)+pick(NK_BODY);
+  if(k===1)return 'Ol\u2019 '+pick(NK_THING);
+  if(k===2)return pick(NK_THING.concat(['Rat','Moth','Toad','Worm','Beetle']))+'-'+pick(NK_VERB);
+  if(k===3)return pick(['Two','Three','No','One','Nine'])+'-'+pick(['Teeth','Toes','Fingers','Ears','Eyes','Knees']);
+  return pick(['Little','Big','Wee','Fat','Lanky','Stinky','Lucky','Sad'])+' '+pick(NK_THING);
+}
+function goblinName(){return R()<.6?gutturalName():nickname()}
+
+/* horde names */
+const H_ADJ=['Grinning','Gutter','Rusted','Weeping','Toothsome','Moldering','Howling','Crooked','Sodden','Gnawing','Cindered','Unwashed'];
+const H_NOUN=['Tooth','Ladle','Ditch','Bone','Knife','Lantern','Rat','Skull','Bog','Kettle','Gallows','Moon'];
+function hordeName(){
+  const k=ri(0,2);
+  if(k===0)return 'The '+pick(H_ADJ)+' '+pick(H_NOUN)+' Horde';
+  if(k===1)return 'Horde of the '+pick(H_ADJ)+' '+pick(H_NOUN);
+  return 'The '+pick(H_NOUN)+pick(['biters','lickers','gnawers','eaters','kickers'])+'';
+}
+const H_LAIR=['a flooded crypt','the cellars under a burned chapel','a hollow hill full of old bones','a collapsed mine that still hums','the drains beneath a gallows town','a barrow the dead have mostly vacated','the roots of a hanging tree','a sunken abbey that smells of candle fat'];
+
+/* jobs: pri = main stat, sec = secondary, need = need they rarely want (they handle it) */
+const JOBS=[
+ {n:'Shaman',pri:'Inspect',sec:'Trap',b:'Reads omens in entrails, mostly to decide who washes the pot.'},
+ {n:'Cook',pri:'Inspect',sec:'Hit',ok:'Grub',b:'Nobody asks what is in the stew. Nobody has asked twice.'},
+ {n:'Trapper',pri:'Trap',sec:'Sneak',b:'Has lost three fingers to their own work and calls each one a lesson.'},
+ {n:'Grunt',pri:'Hit',sec:'Sneak',b:'Hits things. Has opinions about which things, but keeps them.'},
+ {n:'Scout',pri:'Sneak',sec:'Inspect',b:'Goes first, comes back last, lies about everything in between.'},
+ {n:'Tunneler',pri:'Trap',sec:'Hit',b:'Digs because the surface is too bright and full of knights.'},
+ {n:'Beast-wrangler',pri:'Hit',sec:'Inspect',b:'Keeps the wolves fed, by narrow margins.'},
+ {n:'Scavenger',pri:'Sneak',sec:'Inspect',ok:'Shinies',b:'Brings back treasure. Also a lot of boots.'},
+ {n:'Tinkerer',pri:'Trap',sec:'Inspect',b:'Builds contraptions that work once, loudly.'},
+ {n:'Drummer',pri:'Hit',sec:'Trap',b:'Keeps the beat for raids and, sadly, for everything else.'},
+ {n:'Brewer',pri:'Inspect',sec:'Trap',ok:'Booze',b:'Ferments anything. Has fermented a boot.'},
+ {n:'Grave-robber',pri:'Sneak',sec:'Trap',ok:'Shinies',b:'Says the dead don\u2019t need rings. Has never asked them.'},
+ {n:'Poisoner',pri:'Trap',sec:'Sneak',b:'Labels nothing. Remembers most of it.'},
+ {n:'Mushroom farmer',pri:'Inspect',sec:'Trap',ok:'Grub',b:'Grows supper in the dark. Some of it glows. Some of it whispers.'},
+ {n:'Bat-keeper',pri:'Sneak',sec:'Trap',b:'Sends bats with messages. The bats edit them.'},
+ {n:'Rat-catcher',pri:'Hit',sec:'Trap',ok:'Grub',b:'Catches rats for the pot, names the clever ones, eats them anyway.'},
+ {n:'Snitch',pri:'Sneak',sec:'Inspect',b:'Knows who stole what. Sells that too.'},
+ {n:'Bone-carver',pri:'Inspect',sec:'Hit',b:'Makes spoons, dice and charms from whatever the stew left behind.'},
+ {n:'Lookout',pri:'Inspect',sec:'Sneak',b:'Watches the road all night. Mostly. There was one knight they missed.'},
+ {n:'Tax accountant',pri:'Inspect',sec:'Sneak',ok:'Shinies',b:'Keeps the horde\u2019s ledger. Charges a tithe on stolen goods, and a tithe on the tithe.'}
+];
+const QUIRKS=['Collects teeth, not all of them theirs','Afraid of birds, specifically ducks','Talks to a rock named Gerald','Sleeps in the cooking pot','Hums hymns stolen from monks','Refuses to wear the left boot','Believes the moon owes them money','Licks every coin to check it','Keeps a dead rat as a pet and insists it is resting','Pretends to read','Bites when startled','Can count to eleven and brags about it','Wears a bishop\u2019s mitre found in a ditch','Hoards candle stubs','Swears revenge on everyone, keeps a list','Cries at sunsets, denies it','Thinks they are secretly a troll','Never blinks first','Steals spoons compulsively','Writes bad poetry about mud','Insists on being called captain','Laughs at funerals, cries at weddings','Sharpens things that are already sharp','Is very polite before stabbing'];
+const FRIEND_WHY=['shared a stolen ham','both hate the drummer','survived the same flood','split a cursed coin and lived','once hid in the same barrel','agree the moon is suspicious','nursed each other through bad mushrooms','won a rat race together'];
+const RIVAL_WHY=['argued over a boot, both lost','one ate the other\u2019s birthday rat','fought over a shiny that turned out to be a beetle','one snores, the other keeps count','both claim the same sleeping hole','one tattled about the stew','disagree about whether ducks are real','a bet on a knight went badly'];
+const KIN_WORDS=['clutch-sib','clutch-sib','cousin, allegedly','hatchmate'];
+
+const KCAP=8,KMIN=18;
+function fixStats(st){STATS.forEach(k=>st[k]=clamp(st[k],1,KCAP));
+  let sum=STATS.reduce((a,k)=>a+st[k],0);while(sum<KMIN){const o=STATS.filter(k=>st[k]<KCAP);st[pick(o)]++;sum++}return st}
+function mood(n){const s=NEEDS.reduce((a,k)=>a+n[k],0),top=Math.max(...NEEDS.map(k=>n[k]));
+  if(s>=8||(top===3&&s>=7))return 'Murderous';if(s>=5)return 'Surly';if(s>=3)return 'Grumbling';return 'Gleeful';}
+
+function generate(seed){
+  R=mulberry32(seed);try{return gen0(seed)}finally{R=Math.random}
+}
+function gen0(seed){
+  const size=ri(8,12),used=new Set(),gobs=[];
+  // ensure at most one tax accountant (they cost extra)
+  let accountant=false;
+  for(let i=0;i<size;i++){
+    let name;do name=goblinName();while(used.has(name));used.add(name);
+    let job;do job=pick(JOBS);while(job.n==='Tax accountant'&&accountant);
+    if(job.n==='Tax accountant')accountant=true;
+    const st={};STATS.forEach(s=>st[s]=ri(2,5));
+    st[job.pri]+=ri(3,4);st[job.sec]+=ri(1,2);fixStats(st);
+    const needs={};NEEDS.forEach(k=>needs[k]=pick([0,0,0,1,1,1,1,2,2,3]));
+    if(job.ok)needs[job.ok]=0;
+    const q=shuffle(QUIRKS).slice(0,2);
+    gobs.push({id:i,name,job:job.n,st,needs,quirks:q,wound:0,dead:false,out:false});
+  }
+  const ties=[],has=(a,b)=>ties.some(t=>(t.a===a&&t.b===b)||(t.a===b&&t.b===a));
+  // kin: clutches
+  const order=shuffle(gobs.map(g=>g.id));let p=0;
+  while(p<order.length){const n=Math.min(ri(1,3),order.length-p);const cl=order.slice(p,p+n);p+=n;
+    for(let i=0;i<cl.length;i++)for(let j=i+1;j<cl.length;j++)ties.push({a:cl[i],b:cl[j],kind:'kin',why:pick(KIN_WORDS)});}
+  // friends and rivals
+  gobs.forEach(g=>{const n=ri(1,2);for(let k=0;k<n;k++){const o=pick(gobs).id;if(o===g.id||has(g.id,o))continue;
+    const kind=R()<.55?'friend':'rival';ties.push({a:g.id,b:o,kind,why:pick(kind==='friend'?FRIEND_WHY:RIVAL_WHY)});}});
+  const lair=pick(H_LAIR);return {seed,name:hordeName(),lair,gobs,ties,day:1,mission:null,report:[],lastHatch:null,map:genMap(),warmth:{},chron:[{d:1,t:'The horde gathers in '+lair+'. '+size+' goblins, no plan.'}]};
+}
+
+/* ---------- UI ---------- */
+const KEY='goblinHorde.v1',IDX='gh.index',SLOT='gh.slot.';
+let H=null,sel=0,slotId=null;
+function readIdx(){try{return JSON.parse(localStorage.getItem(IDX)||'null')||{current:null,list:[]}}catch(e){return {current:null,list:[]}}}
+function writeIdx(x){try{localStorage.setItem(IDX,JSON.stringify(x))}catch(e){}}
+function save(){if(!H)return;if(!slotId)slotId='h'+Date.now().toString(36)+Math.floor(Math.random()*1e4);
+  try{localStorage.setItem(SLOT+slotId,JSON.stringify({H,sel}));const x=readIdx(),meta={id:slotId,name:H.name,day:H.day,alive:H.gobs.filter(g=>!g.dead&&!g.gone).length,at:Date.now()};
+    const i=x.list.findIndex(e=>e.id===slotId);if(i>=0)x.list[i]=meta;else x.list.push(meta);x.current=slotId;writeIdx(x)}catch(e){}}
+function loadSlot(id){try{const s=JSON.parse(localStorage.getItem(SLOT+id)||'null');if(s&&s.H){slotId=id;return applyLoad(s)}}catch(e){}return false}
+function load(){try{const x=readIdx();
+  if(!x.list.length){const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old&&old.H&&Array.isArray(old.H.gobs)){if(applyLoad(old)){save();try{localStorage.removeItem(KEY)}catch(e){}return true}}return false}
+  return loadSlot(x.current&&x.list.some(e=>e.id===x.current)?x.current:x.list[x.list.length-1].id)}catch(e){return false}}
+function applyLoad(s){try{if(s&&s.H&&Array.isArray(s.H.gobs)){H=s.H;sel=s.sel||0;H.day=H.day||1;H.warmth=H.warmth||{};H.chron=H.chron||[{d:H.day,t:'The chronicle begins, late, in '+H.lair+'.'}];if(!H.map)H.map=genMap();mapInit(H.map);if(H.lastHatch===undefined)H.lastHatch=null;H.mission=H.mission||null;H.report=H.report||[];
+  H.gobs.forEach(g=>{fixStats(g.st);g.wound=g.wound||0;g.dead=!!g.dead;g.out=!!g.out});if(!gob(sel)||gob(sel).dead||gob(sel).gone)sel=(alive()[0]||{id:0}).id;return true}}catch(e){}return false}
+function renderSlots(){const x=readIdx();if(!$('slots'))return;
+  $('slots').innerHTML='<ul class="slotlist">'+x.list.slice().sort((a,b)=>b.at-a.at).map(e=>'<li'+(e.id===slotId?' class="cur"':'')+'><span><b>'+esc(e.name)+'</b><small>Day '+e.day+', '+e.alive+' goblin'+(e.alive===1?'':'s')+(e.id===slotId?', playing now':'')+'</small></span><span class="acts">'
+    +(e.id===slotId?'':'<button data-slot="go" data-id="'+e.id+'">Switch</button>')+'<button data-slot="del" data-id="'+e.id+'">Delete</button></span></li>').join('')+'</ul>'
+    +'<div class="acts"><button class="main" data-slot="new">Start a new horde</button></div>';}
+function slotAct(a,id){
+  if(a==='go'){if(loadSlot(id)){plan={type:null,party:[]};save();render();renderSlots()}}
+  else if(a==='new'){slotId=null;newHorde();renderSlots()}
+  else if(a==='del'){const x=readIdx(),e=x.list.find(e=>e.id===id);if(!e||!confirm('Delete '+e.name+'? This cannot be undone.'))return;
+    try{localStorage.removeItem(SLOT+id)}catch(err){}x.list=x.list.filter(e=>e.id!==id);writeIdx(x);
+    if(id===slotId){slotId=null;if(x.list.length)slotAct('go',x.list.sort((a,b)=>b.at-a.at)[0].id);else newHorde()}renderSlots()}
+}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const gob=id=>H.gobs.find(g=>g.id===id);
+const alive=()=>H.gobs.filter(g=>!g.dead&&!g.gone);
+const tiesOf=id=>H.ties.filter(t=>(t.a===id||t.b===id)&&!gob(t.a).dead&&!gob(t.b).dead&&!gob(t.a).gone&&!gob(t.b).gone);
+const worst=g=>{let k=NEEDS[0];NEEDS.forEach(n=>{if(g.needs[n]>g.needs[k])k=n});return k};
+
+function renderHeader(){
+  $('hname').value=H.name;
+  $('hsub').textContent=alive().length+' goblins squatting in '+H.lair+'. Day '+H.day+'.';
+  $('seedLbl').textContent='Hatching '+H.seed;
+  const L=alive();
+  $('wants').innerHTML=NEEDS.map(n=>{const c=L.filter(g=>g.needs[n]>=2).length;
+    return '<div'+(c>=Math.ceil(L.length/3)?' class="hot"':'')+'><b>'+c+'</b>'+n+'</div>'}).join('')
+    +'<div class="seed" style="align-self:end">goblins Pressing<br>or Aching</div>';
+}
+function renderRoster(){
+  const F=H.gobs.filter(g=>g.dead),Gn=H.gobs.filter(g=>g.gone);
+  $('roster').innerHTML=alive().map(g=>{const w=worst(g),lv=g.needs[w];
+    return '<li><button data-g="'+g.id+'" aria-current="'+(g.id===sel)+'"><span class="rn">'+esc(g.name)+'</span><span class="rj">'+esc(g.job)+', '+mood(g.needs).toLowerCase()
+    +(lv>=2?', <span class="hot">'+NEEDW[w][lv].toLowerCase()+'</span>':'')+(g.wound?', <span class="hot">wounded</span>':'')+(g.hatchling?', hatchling':'')+'</span></button></li>'}).join('')
+    +(F.length?'<li class="fallen">Fallen: '+F.map(g=>esc(g.name)+' (day '+g.diedDay+')').join(', ')+'</li>':'')+(Gn.length?'<li class="fallen">Taken: '+Gn.map(g=>esc(g.name)+' (day '+g.goneDay+')').join(', ')+'</li>':'');
+}
+function renderWeb(){
+  const LG=alive(),n=LG.length,cx=300,cy=270,r=205,pos={};
+  LG.forEach((g,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;pos[g.id]=[cx+r*Math.cos(a),cy+r*Math.sin(a)]});
+  const lit=new Set(tiesOf(sel).flatMap(t=>[t.a,t.b]));
+  let s=H.ties.filter(t=>pos[t.a]&&pos[t.b]).map(t=>{const[a,b]=[pos[t.a],pos[t.b]];const on=t.a===sel||t.b===sel;
+    return '<line class="'+t.kind+(on?'':' dim')+'" x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'"/>'}).join('');
+  s+=LG.map(g=>{const[x,y]=pos[g.id];const ini=g.name.replace(/^Ol\u2019 /,'').charAt(0);
+    return '<g class="node'+(g.id===sel?' sel':'')+'" data-g="'+g.id+'" tabindex="0" role="button" aria-label="'+esc(g.name)+'" style="opacity:'+(g.id===sel||lit.has(g.id)?1:.55)+'">'
+    +'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="22"/><text class="ini" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'">'+esc(ini)+'</text>'
+    +'<text x="'+x.toFixed(1)+'" y="'+(y+40).toFixed(1)+'">'+esc(g.name)+'</text></g>'}).join('');
+  $('web').innerHTML=s;
+}
+function renderDetail(){
+  const g=gob(sel);if(!g||g.dead||g.gone){$('detail').innerHTML='<p class="empty">Pick a goblin.</p>';return}
+  const job=JOBS.find(j=>j.n===g.job)||{b:''};
+  const ts=tiesOf(g.id).sort((x,y)=>['kin','friend','rival'].indexOf(x.kind)-['kin','friend','rival'].indexOf(y.kind));
+  $('detail').innerHTML=
+    '<label class="seed" for="gname">Name</label><input id="gname" class="nm" value="'+esc(g.name)+'" autocomplete="off" spellcheck="false">'
+    +'<p class="job">'+esc(g.job)+' <span class="st">'+(g.hatchling?'Hatchling, ready for missions on day '+g.grownDay+', ':'')+(g.wound?'<span class="w">Wounded</span>':'Hale')+(g.out?', out today':', at home')+'</span></p><p class="blurb">'+esc(job.b)+'</p>'
+    +'<h3>Knacks <span class="st">(out of '+KCAP+')</span></h3><div class="stats">'+STATS.map(s=>'<span>'+s+'</span><div class="track" aria-hidden="true"><span style="width:'+g.st[s]/KCAP*100+'%"></span></div><span class="v">'+g.st[s]+'</span>').join('')+'</div>'
+    +'<h3>Needs</h3><ul class="needs">'+NEEDS.map(k=>{const v=g.needs[k];return '<li><span>'+k+'</span><span class="lv'+v+'">'+NEEDW[k][v]+' <span class="pips" aria-label="'+LEVELW[v]+'">'+'\u25CF'.repeat(v)+'\u25CB'.repeat(3-v)+'</span></span></li>'}).join('')+'</ul>'
+    +'<p class="mood">Mood: <em>'+mood(g.needs)+'</em></p>'
+    +'<h3>Quirks</h3><ul class="quirks">'+g.quirks.map(q=>'<li>'+esc(q)+'</li>').join('')+'</ul>'
+    +'<h3>Ties</h3>'+(ts.length?'<ul class="ties">'+ts.map(t=>{const o=gob(t.a===g.id?t.b:t.a);
+      return '<li><span class="tk '+t.kind+'">'+t.kind+'</span><button data-g="'+o.id+'">'+esc(o.name)+'</button> <span class="why">'+esc(t.why)+'</span></li>'}).join('')+'</ul>':'<p class="empty">A loner. Even the rats keep their distance.</p>');
+}
+function render(){renderHeader();renderRoster();renderWeb();renderDetail();renderMissions();renderMap()}
+function choose(id,from){const again=id===sel;sel=id;save();renderRoster();renderWeb();renderDetail();
+  if(from==='web'&&again)tab('gobs');
+  if(from!=='web'&&from!=='detail'&&matchMedia('(max-width:720px)').matches)$('detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})}
+function tab(t){document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+  document.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==t)}
+function newHorde(){H=generate(Math.floor(Math.random()*1e9));sel=0;plan={type:null,party:[]};save();render()}
+function sect(s){document.querySelectorAll('nav.sect button').forEach(b=>{if(b.dataset.s===s)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  document.querySelectorAll('[data-sect]').forEach(d=>d.hidden=d.dataset.sect!==s);if(s==='horde'){renderRoster();renderWeb();renderDetail()}else if(s==='map'){renderMap();const sc=document.querySelector('.mapscroll');if(sc&&sc.scrollWidth>sc.clientWidth){const w=H.map.places[0];sc.scrollLeft=Math.max(0,w.x/600*sc.scrollWidth-sc.clientWidth/2)}}else renderMissions()}
+
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-g]');if(g){choose(+g.dataset.g,e.target.closest('#web')?'web':e.target.closest('#detail')?'detail':'roster');return}
+  const t=e.target.closest('nav.tabs button');if(t)tab(t.dataset.t);
+  const sb=e.target.closest('nav.sect button');if(sb)sect(sb.dataset.s);
+  const a=e.target.closest('[data-m]');if(a)mAct(a.dataset.m,a.dataset.v);
+  const sl=e.target.closest('[data-slot]');if(sl){slotAct(sl.dataset.slot,sl.dataset.id);return}
+  const pl=e.target.closest('[data-p]');if(pl){H.map.sel=+pl.dataset.p;save();renderMap()}
+});
+document.addEventListener('keydown',e=>{const p=e.target.closest&&e.target.closest('[data-p]');if(p&&(e.key==='Enter'||e.key===' ')){e.preventDefault();H.map.sel=+p.dataset.p;save();renderMap()}});
+$('web').addEventListener('keydown',e=>{const g=e.target.closest('[data-g]');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();choose(+g.dataset.g,'web')}});
+$('hname').addEventListener('change',e=>{H.name=e.target.value.trim()||H.name;save();renderHeader();renderSlots()});
+$('detail').addEventListener('change',e=>{if(e.target.id==='gname'){const g=gob(sel),v=e.target.value.trim();if(v){g.name=v;save();renderRoster();renderWeb()}else e.target.value=g.name}});
+$('slotBtn').addEventListener('click',()=>{const el=$('slots'),open=el.hidden;el.hidden=!open;$('slotBtn').setAttribute('aria-expanded',open);if(open)renderSlots()});
+/* ---------- missions ---------- */
+const MT={
+  Hunt:{stat:'Hit',need:'Grub',goal:'Hunt for grub',hooks:['A boar with opinions','A deer that is mostly antlers','A lost sheep, possibly cursed','A badger that has heard of goblins','Geese. So many geese','A knight\u2019s horse, minus the knight','A wild pig that hunts back','Eels in the moat of a sleeping keep']},
+  Forage:{stat:'Inspect',need:'Booze',goal:'Forage for booze',hooks:['Crabapples fermenting under a wasp nest','A monk\u2019s cellar with a monk still in it','Bog-berries that may or may not be poison','Honey from very insistent bees','A cart of cider stuck in the mud, with guards','Mushrooms that make the brew \u201Cinteresting\u201D','A barrel washed up in the marsh, humming','Elderflowers in a graveyard, watched by crows']},
+  Patrol:{stat:'Sneak',need:'Shinies',goal:'Patrol for shinies',hooks:['A riverbank of suspiciously nice pebbles','A dung-heap glittering with scarab beetles','A dead tree that drops excellent sticks, guarded by owls','Shells on the lake shore, under a heron\u2019s eye','A crow\u2019s hoard in a gallows tree','A shrine full of offerings and one awake priest','A quarry full of rocks, some very round','A beetle swarm wearing, somehow, a ring']},
+  Build:{stat:'Trap',need:'Sleep',goal:'Build for sleep',hooks:['Dig a new sleeping hole without hitting the crypt','Raise a moss roof before the rain','Lash together hammocks that hold, mostly','Wall off the drafty tunnel (something lives there)','Stuff straw into the bunks, mind the rats','Shore up the ceiling that keeps dropping on the drummer','Carve bunk niches in the old ossuary','Hang a door to keep out the snoring']}
+};
+MT.Raid={stat:'Hit',need:null,goal:'Raid on the warren',hooks:[]};
+const RAID_HOOK={Knights:'Knights with torches at the tunnel mouth, singing about it',Dwarves:'Dwarves digging up through the floor, cursing',Villagers:'Villagers with pitchforks and one very angry goose',Dogs:'Hounds pouring down the tunnels, baying'};
+const MORDER=['Hunt','Forage','Patrol','Build'];
+const HITW={Raid:['knocks one back','bites an ankle','drops a rock on a head'],Hunt:['lands a blow','spears it','gets a good bite in'],Forage:['finds the good stuff','fills a skin','sniffs out a stash'],Patrol:['pockets a beauty','spots a shiny','snags a fine stick'],Build:['gets it to hold','hammers it home','props it up just right']};
+const BANTER={
+  fh:['\u201CThat\u2019s my {a}!\u201D {b} shouts.','{b} bangs a pot for {a}.','\u201CKnew you had it in you,\u201D {b} tells {a}, mostly honestly.','{b} does a little dance for {a}. It is not good dancing.'],
+  rh:['\u201CEven a blind rat finds cheese,\u201D {b} sniffs at {a}.','\u201CLucky,\u201D mutters {b}. \u201CVery, very lucky.\u201D','\u201CNice. Shame nobody important saw it,\u201D {b} tells {a}.','\u201CAlmost competent, {a},\u201D says {b}.'],
+  fw:['{b} drags {a} out of the way. \u201CNot today, you lump.\u201D','\u201CHold on, {a}! I still owe you a rat!\u201D {b} cries.','{b} slaps moss on {a}\u2019s wound and calls it medicine.'],
+  rw:['\u201CBleeding suits you, {a},\u201D says {b}, handing over a rag anyway.','{b} laughs at {a}, then quietly checks they\u2019re still breathing.','\u201CTold you to duck,\u201D {b} tells {a}. They did not.'],
+  fd:['{b} howls for {a} until the crows leave.','{b} takes {a}\u2019s best spoon to keep forever.'],
+  rd:['\u201CWho am I meant to hate now?\u201D {b} mutters over {a}.','{b} says nothing about {a} for once, which is worse.']
+};
+let plan={type:null,party:[]};
+const d10=()=>1+Math.floor(Math.random()*10);
+const rpick=a=>a[Math.floor(Math.random()*a.length)];
+function offered(){return MORDER.filter(t=>alive().some(g=>g.needs[MT[t].need]>=1))}
+function encCount(T){return T<=3?1:T<=7?2:3}
+function split(T){const E=encCount(T),b=Math.floor(T/E),a=Array(E).fill(b);for(let i=0;i<T-b*E;i++)a[E-1-i]++;return a}
+function planTokens(){return plan.type?plan.party.reduce((s,id)=>s+gob(id).needs[MT[plan.type].need],0):0}
+function tieBetween(a,b){const t=H.ties.find(t=>(t.a===a&&t.b===b)||(t.a===b&&t.b===a));return t?t.kind:null}
+function banter(m,g,kind){ // kind: h (hit), w (wound), d (death)
+  const others=m.party.map(gob).filter(o=>o.id!==g.id&&!o.dead).map(o=>({o,t:tieBetween(g.id,o.id)})).filter(x=>x.t==='friend'||x.t==='rival');
+  if(!others.length)return;const chance=kind==='h'?.4:1;if(Math.random()>chance)return;
+  const x=rpick(others);m.log.push({c:'say',t:rpick(BANTER[(x.t==='friend'?'f':'r')+kind]).replace(/\{a\}/g,g.name).replace(/\{b\}/g,x.o.name)});
+}
+function ease(m,g){
+  const need=MT[m.type].need;let tgt=!g.dead&&g.needs[need]>0?g:null;
+  if(!tgt)tgt=m.party.map(gob).filter(o=>!o.dead&&o.needs[need]>0).sort((a,b)=>b.needs[need]-a.needs[need])[0];
+  if(!tgt){m.log.push({c:'miss',t:'Nobody needs more '+need.toLowerCase()+'. It gets wasted on the way home.'});return}
+  tgt.needs[need]--;m.eased++;m.log.push({c:'good',t:tgt.name+'\u2019s '+need+' eases to '+NEEDW[need][tgt.needs[need]]+'.'});
+}
+function send(){
+  const T=planTokens();if(!plan.type||plan.party.length<2||plan.party.length>4||T<1)return;
+  const hooks=shuffle(MT[plan.type].hooks);
+  const pl=missionPlace();
+  H.mission={place:pl.id,type:plan.type,party:plan.party.slice(),T,encs:split(T).map((n,i)=>({hook:hooks[i],total:n,left:n})),idx:0,round:0,state:'rolling',log:[],eased:0};
+  plan.party.forEach(id=>gob(id).out=true);
+  H.mission.log.push({c:'rnd',t:'Off to '+pl.name+'. '+factLabel(pl)+'.'});
+  visitPlace(H.mission,pl).forEach(t=>H.mission.log.push({c:'say',t}));
+  if(!pl.haunted&&Math.random()<.6)H.mission.log.push({c:'say',t:pick(THING_FAR)});
+  H.mission.log.push({c:'rnd',t:'Encounter 1: '+H.mission.encs[0].hook});
+  plan={type:null,party:[]};save();render();
+}
+function roll(){
+  const m=H.mission;if(!m||m.state!=='rolling')return;const e=m.encs[m.idx],ty=MT[m.type];m.round++;
+  m.log.push({c:'rnd',t:'Round '+m.round});e.last=0;
+  for(const g of m.party.map(gob)){
+    if(g.dead)continue;if(e.left<=0)break;
+    const d=d10(),stat=g.st[ty.stat];
+    if(d!==10&&d<=stat){const c=Math.min(d===1?2:1,e.left);e.left-=c;e.last+=c;
+      m.log.push({c:'hit',t:g.name+' rolls '+d+' under '+ty.stat+' '+stat+' and '+rpick(HITW[m.type])+(c===2?'. A perfect roll clears two.':'.')});
+      if(ty.need)for(let i=0;i<c;i++)ease(m,g);banter(m,g,'h');}
+    else{const r=d10(),th=d===10?3:2;
+      if(r<=th){if(g.wound){g.dead=true;g.diedDay=H.day;chron(g.name+' died '+(m.type==='Raid'?'defending the warren':'on a '+m.type.toLowerCase()+' at '+((H.map.places[m.place]||{}).name||'somewhere'))+'.');m.log.push({c:'bad',t:g.name+' rolls '+d+', misses, and does not get up. '+g.name+' is dead.'});banter(m,g,'d');}
+        else{g.wound=1;m.log.push({c:'bad',t:g.name+' rolls '+d+', misses, and gets hurt.'});banter(m,g,'w');}}
+      else m.log.push({c:'miss',t:g.name+' rolls '+d+(d===10?' (always a miss)':'')+' and misses.'});}
+  }
+  if(!m.party.some(id=>!gob(id).dead)){m.state='over';m.log.push({c:'bad',t:m.type==='Raid'?'The warren falls silent. The horde is no more.':'No one comes home from this one.'});if(m.type==='Raid'||!alive().length)chron('The horde is no more.');}
+  else if(e.left<=0&&m.type==='Raid'){m.state='over';H.map.grudges[m.raider]=0;H.map.lastVisit[m.raider]=H.day;
+    chron('The '+m.raider.toLowerCase()+' were driven off.');m.log.push({c:'good',t:'The '+m.raider.toLowerCase()+' are driven off. They won\u2019t forget, but they\u2019ll stop thinking about it. Grudge back to Unaware.'});
+    m.party.map(gob).filter(g=>!g.dead).forEach(g=>{if(g.st.Hit<KCAP){g.st.Hit++;m.log.push({c:'good',t:g.name+'\u2019s Hit grows to '+g.st.Hit+'.'})}});}
+  else if(e.left<=0){if(m.idx<m.encs.length-1){m.state='cleared';m.log.push({c:'good',t:'Encounter cleared.'});}else{m.state='over';m.log.push({c:'good',t:'Mission done. The survivors swagger home.'});
+    const np=revealNear(H.map.places[m.place]);if(np)chron('Found '+np.name+'.');if(np)m.log.push({c:'good',t:'On the way home they spot somewhere new: '+np.name+'.'});
+    const k=MT[m.type].stat;m.party.map(gob).filter(g=>!g.dead).forEach(g=>{if(g.st[k]<KCAP){g.st[k]++;m.log.push({c:'good',t:g.name+'\u2019s '+k+' grows to '+g.st[k]+'.'})}else m.log.push({c:'miss',t:g.name+'\u2019s '+k+' is already as good as goblins get.'})});}}
+  if(gob(sel)&&(gob(sel).dead||gob(sel).gone))sel=(alive()[0]||{id:0}).id;
+  save();render();
+}
+function pressOn(){const m=H.mission;if(!m||m.state!=='cleared')return;m.idx++;m.round=0;m.state='rolling';m.log.push({c:'rnd',t:'Encounter '+(m.idx+1)+': '+m.encs[m.idx].hook});save();render()}
+function fallBack(){const m=H.mission;if(!m||m.state==='over'||m.type==='Raid')return;m.state='over';m.log.push({c:'miss',t:'They fall back and slink home with what they got.'});save();render()}
+function finish(){const m=H.mission;if(!m)return;const lost=m.party.map(gob).filter(g=>g.dead).map(g=>g.name);
+  H.report.push(m.type==='Raid'?('Raid by the '+m.raider.toLowerCase()+(alive().length?': driven off':': the horde fell')+(lost.length?'. Lost '+lost.join(', '):'')+'.'):(MT[m.type].goal+' at '+((H.map.places[m.place]||{}).name||'somewhere')+': '+m.eased+' of '+m.T+' eased'+(lost.length?'; lost '+lost.join(', '):'')+'.'));H.mission=null;save();render()}
+function dawn(lines){
+  const M=H.map;
+  FORDER.concat([THING]).forEach(f=>{if(M.grudges[f]>0&&H.day-M.lastVisit[f]>=3){M.grudges[f]--;M.lastVisit[f]=H.day;
+    lines.push((f===THING?'Something':'The '+f.toLowerCase())+' '+(f===THING?'seems to lose interest a little':'cool off a little')+'. '+(f===THING?'It is':'They are')+' now '+GLV[M.grudges[f]].toLowerCase()+'.')}});
+  if(H.day>=M.thingMove){const cur=M.places.find(p=>p.haunted),opts=M.places.filter(p=>p.id!==0&&p!==cur);if(cur)cur.haunted=false;pick(opts).haunted=true;M.thingMove=H.day+ri(4,6);lines.push('Something moved in the night. Nobody saw where.')}
+  if(H.day>=M.thingAct){M.thingAct=H.day+ri(2,4);const adults=alive().filter(g=>!g.hatchling);
+    if(Math.random()<.2+.2*M.grudges[THING]&&adults.length>1){const g=pick(adults);g.gone=true;g.goneDay=H.day;chron(g.name+' was taken in the night.');lines.push(pick(THING_TAKE).replace(/\{a\}/g,g.name))}
+    else{const i=ri(0,THING_GIFT.length-1),need=GIFT_NEED[i],who=shuffle(alive().filter(g=>g.needs[need]>0)).slice(0,ri(2,4));
+      who.forEach(g=>g.needs[need]--);lines.push(THING_GIFT[i]+(who.length?' '+who.map(g=>g.name).join(', ')+' feel'+(who.length===1?'s':'')+' better about '+need.toLowerCase()+'.':' Nobody needed it, which is somehow worse.'))}}
+  const angry=FORDER.filter(f=>M.grudges[f]>=3);
+  if(angry.length&&alive().length){const f=pick(angry),party=alive().map(g=>g.id),T=party.length;
+    H.mission={type:'Raid',raider:f,party,T,encs:[{hook:RAID_HOOK[f],total:T,left:T}],idx:0,round:0,state:'rolling',log:[{c:'bad',t:'Dawn. The '+f.toLowerCase()+' have come for the horde. Everyone fights.'},{c:'rnd',t:RAID_HOOK[f]}],eased:0};
+    lines.push('The '+f.toLowerCase()+' are raiding the warren! Go to Missions.');chron('The '+f.toLowerCase()+' raided the warren.')}
+}
+function endDay(){
+  if(H.mission||!alive().length)return;const lines=[];
+  alive().forEach(g=>{if(g.wound&&!g.out){g.wound=0;lines.push(g.name+' rested and healed.')}
+    const k=NEEDS[Math.floor(Math.random()*4)];if(g.needs[k]<3)g.needs[k]++;g.out=false;});
+  H.day++;
+  alive().filter(g=>g.hatchling&&H.day>=g.grownDay).forEach(g=>{g.hatchling=false;const made=formTies(g);
+    chron(g.name+' grew up.');lines.push(g.name+' is grown and ready to go out'+(made.length?', and already '+made.join(' and ')+'.':'.'))});
+  dawn(lines);
+  H.report=['Day '+H.day+' dawns. Everyone wants a little more of something.'].concat(lines).concat(overhear());plan={type:null,party:[]};save();render();
+}
+function canHatch(){return H.lastHatch===null||H.day-H.lastHatch>=3}
+function newGoblin(id){
+  const used=new Set(H.gobs.map(g=>g.name));let name;do name=goblinName();while(used.has(name));
+  const acc=alive().some(g=>g.job==='Tax accountant');let job;do job=pick(JOBS);while(job.n==='Tax accountant'&&acc);
+  const st={};STATS.forEach(k=>st[k]=ri(2,5));st[job.pri]+=ri(3,4);st[job.sec]+=ri(1,2);fixStats(st);
+  const needs={};NEEDS.forEach(k=>needs[k]=0);
+  return {id,name,job:job.n,st,needs,quirks:shuffle(QUIRKS).slice(0,2),wound:0,dead:false,out:false,hatchling:true,grownDay:H.day+2,clutch:H.day};
+}
+function hatch(){
+  if(!canHatch())return;const n=ri(1,3),base=Math.max(...H.gobs.map(g=>g.id))+1,cl=[];
+  for(let i=0;i<n;i++){const g=newGoblin(base+i);H.gobs.push(g);cl.push(g)}
+  for(let i=0;i<cl.length;i++)for(let j=i+1;j<cl.length;j++)H.ties.push({a:cl[i].id,b:cl[j].id,kind:'kin',why:'hatched in the same clutch'});
+  H.lastHatch=H.day;
+  chron('Hatched: '+cl.map(g=>g.name).join(', ')+'.');H.report.push('The egg-pit cracks open: '+cl.map(g=>g.name+' ('+g.job.toLowerCase()+')').join(', ')+'. '+(n===1?'It':'They')+' can go out on day '+(H.day+2)+'.');
+  save();render();
+}
+function formTies(g){
+  const pool=shuffle(alive().filter(o=>o.id!==g.id&&!o.hatchling&&!tieBetween(g.id,o.id))),made=[],k=ri(1,2);
+  for(const o of pool.slice(0,k)){const kind=Math.random()<.55?'friend':'rival';H.ties.push({a:g.id,b:o.id,kind,why:pick(kind==='friend'?FRIEND_WHY:RIVAL_WHY)});made.push(kind+'s with '+o.name)}
+  return made;
+}
+function mAct(a,v){
+  if(a==='type'){plan.type=plan.type===v?null:v;plan.party=[];renderMissions()}
+  else if(a==='gob'){const id=+v,i=plan.party.indexOf(id);if(i>=0)plan.party.splice(i,1);else if(plan.party.length<4)plan.party.push(id);renderMissions()}
+  else if(a==='send')send();else if(a==='roll')roll();else if(a==='on')pressOn();else if(a==='back')fallBack();
+  else if(a==='done')finish();else if(a==='day')endDay();else if(a==='hatch')hatch();
+}
+function pipStr(v){return '\u25CF'.repeat(v)+'\u25CB'.repeat(3-v)}
+function renderMissions(){
+  if(!$('mday'))return;const m=H.mission,offs=offered();
+  const repHTML=(H.report.length?'<h2>Today</h2><ul class="log rep">'+H.report.map(t=>typeof t==='string'?'<li>'+esc(t)+'</li>':'<li class="'+t.c+'">'+esc(t.t)+'</li>').join('')+'</ul>':'')+renderChron();
+  if(!alive().length&&!m){$('mday').innerHTML='<p class="day">Day '+H.day+'</p><p>The horde is no more. Start a new horde to try again.</p>';$('mrep').innerHTML=repHTML;$('mmain').innerHTML='<h2>Silence</h2><p class="empty">Only the rats remain, and they are thrilled.</p>';return}
+  $('mday').innerHTML='<div class="mtop"><p class="day">Day '+H.day+'</p><p class="seed" style="margin:0">'+alive().filter(g=>!g.out&&!g.hatchling).length+' of '+alive().length+' goblins ready to go out</p></div>'
+    +(m?'<p class="seed">'+(m.type==='Raid'?'The warren is under attack!':'A mission is out. Finish it before sending another.')+'</p>':
+      '<div class="mlist">'+(offs.length?offs.map(t=>{const n=MT[t].need,c=alive().filter(g=>g.needs[n]>=1).length;
+        return '<button class="mcard" data-m="type" data-v="'+t+'" aria-pressed="'+(plan.type===t)+'"><b>'+MT[t].goal+'</b><small>Rolls '+MT[t].stat+'. '+c+' goblin'+(c===1?'':'s')+' want '+n.toLowerCase()+'.</small></button>'}).join('')
+        :'<p class="empty">Nobody wants anything. Suspicious. End the day.</p>')+'</div>')
+    +'<div class="acts"><button data-m="day"'+(m?' disabled':'')+'>End the day</button>'+(canHatch()?'<button data-m="hatch">Hatch a clutch</button>':'')+'</div>'
+    +'<p class="seed" style="margin:4px 0 0">'+(canHatch()?'The egg-pit is warm. A clutch can hatch today.':'Next clutch can hatch on day '+(H.lastHatch+3)+'.')+'</p>';
+  $('mrep').innerHTML=repHTML+'<details class="how"><summary>How missions work</summary><p>Missions appear for any need someone is Wanting. Send 2 to 4 goblins; each goes out once a day. The tokens to clear equal the pips that party has in the need: 1 to 3 means one encounter, 4 to 7 two, 8 or more three.</p><p>Each round every goblin rolls a d10 under the mission\u2019s knack. A hit clears a token, a 1 clears two, a 10 always misses. Each token cleared eases the need by one for the goblin who cleared it, or the neediest goblin along. A miss risks a wound: a second d10 of 2 or less (3 or less after a 10). A wounded goblin who is hurt again dies.</p><p>Each mission lands at a random known place. Going into a faction\u2019s land raises their grudge. Clear a mission and the party spots a new place nearby. A grudge cools a step after 3 days without a visit. A faction Out for blood raids the warren at dawn: every goblin fights, rolling Hit, with no falling back. Drive them off and their grudge drops to Unaware.</p><p>Each dawn you overhear a few goblins talking. Every exchange nudges something: a tie warms or cools (three nudges flips it), a need eases or worsens, a rumour reveals a place, or loose talk raises or lowers a grudge.</p><p>Something else is out there. It moves. Sometimes it leaves gifts. Sometimes it takes a goblin. The angrier it gets, the less it gives.</p><p>Hatch a clutch of 1 to 3 goblins every 3 days. Hatchlings are kin to their clutch, stay home for 2 days, then grow up and pick a friend or rival or two.</p><p>Fall back any time to come home with what was cleared. Clear every encounter and each survivor\u2019s knack for that mission grows by 1, up to 8. At the end of the day, every goblin wants one random thing a little more, and wounded goblins who stayed home heal.</p></details>';
+  if(m){const e=m.encs[m.idx];
+    $('mmain').innerHTML='<h2>'+MT[m.type].goal+'</h2><p class="seed" style="margin:0">'+(m.type==='Raid'?'No falling back. ':'')+(H.map.places[m.place]?esc(H.map.places[m.place].name)+'. ':'')+'Encounter '+(m.idx+1)+' of '+m.encs.length+', rolling '+MT[m.type].stat+'</p>'
+      +'<p class="job" style="margin-top:6px">'+esc(e.hook)+'</p>'
+      +'<div class="tokens" role="img" aria-label="'+e.left+' of '+e.total+' tokens left">'+Array.from({length:e.total},(_,i)=>'<i class="'+(i<e.left?'on':'')+'"></i>').join('')+'</div>'
+      +'<div class="party">'+m.party.map(gob).map(g=>'<span class="'+(g.dead?'x':g.wound?'w':'')+'">'+esc(g.name)+' '+MT[m.type].stat+' '+g.st[MT[m.type].stat]+(g.dead?' (dead)':g.wound?' (wounded)':'')+'</span>').join('')+'</div>'
+      +'<div class="acts">'+(m.state==='rolling'?'<button class="main" data-m="roll">Roll the round</button>'+(m.type==='Raid'?'':'<button data-m="back">Fall back</button>'):m.state==='cleared'?'<button class="main" data-m="on">Press on</button><button data-m="back">Fall back</button>':'<button class="main" data-m="done">Back to the warren</button>')+'</div>'
+      +'<ul class="log" id="mlog">'+m.log.map(l=>'<li class="'+l.c+'">'+esc(l.t)+'</li>').join('')+'</ul>';
+    const lg=$('mlog');if(lg)lg.scrollTop=lg.scrollHeight;return}
+  if(!plan.type){$('mmain').innerHTML='<h2>Send a mission</h2><p class="empty">Pick a mission to choose who goes.</p>';return}
+  const ty=MT[plan.type],T=planTokens(),ok=plan.party.length>=2&&T>=1;
+  $('mmain').innerHTML='<h2>'+ty.goal+'</h2><p class="seed" style="margin:0">Rolls '+ty.stat+'. Eases '+ty.need+'. Pick 2 to 4 goblins, neediest first. Where they end up is up to fate.</p>'
+    +'<div class="pick">'+alive().slice().sort((a,b)=>{const da=(a.out||a.hatchling)?1:0,db=(b.out||b.hatchling)?1:0;return da-db||b.needs[ty.need]-a.needs[ty.need]||b.st[ty.stat]-a.st[ty.stat]}).map(g=>{const on=plan.party.includes(g.id),dis=g.out||g.hatchling||(!on&&plan.party.length>=4);
+      return '<button data-m="gob" data-v="'+g.id+'" aria-pressed="'+on+'"'+(dis?' disabled':'')+'>'+esc(g.name)+'<small>'+ty.stat+' '+g.st[ty.stat]+', '+ty.need+' '+pipStr(g.needs[ty.need])+(g.wound?', wounded':'')+(g.out?', out today':'')+(g.hatchling?', hatchling':'')+'</small></button>'}).join('')+'</div>'
+    +'<div class="preview">'+(plan.party.length?(T?'<strong>'+T+' token'+(T===1?'':'s')+'</strong> over '+encCount(T)+' encounter'+(encCount(T)===1?'':'s')+' ('+split(T).join(', ')+').':'Nobody picked wants any '+ty.need.toLowerCase()+'. Nothing to go out for.')
+      +(function(){const p=plan.party,ls=[];for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){const k=tieBetween(p[i],p[j]);if(k==='friend'||k==='rival')ls.push(gob(p[i]).name+' and '+gob(p[j]).name+' are '+k+'s.')}return ls.length?'<br><span class="seed">'+esc(ls.join(' '))+'</span>':''})()
+      :'The more they want it, the more there is to clear.')+'</div>'
+    +'<div class="acts"><button class="main" data-m="send"'+(ok?'':' disabled')+'>Send them out</button></div>';
+}
+
+/* ---------- world map ---------- */
+const FACTIONS={
+  Knights:{c:'var(--fk)',kinds:[['Keep','A squat stone keep. Shiny armour, worse tempers.'],['Watchtower','A tower with a knight on top, squinting.'],['Tourney field','Flags, horses and loud people hitting each other for fun.'],['Abbey','Monks, candles, and knights who visit to feel holy.']],adj:['Gallows','Red','Proud','Iron','Saint\u2019s','Crooked']},
+  Dwarves:{c:'var(--fd)',kinds:[['Hold','A door in a hill, bolted, bearded and suspicious.'],['Mine','Picks ring in the dark. Dwarves sing badly down there.'],['Quarry','Stone and dust and very round rocks.'],['Forge','Hot, loud, full of shiny things that are bolted down.']],adj:['Deep','Copper','Grim','Old','Ember','Under']},
+  Villagers:{c:'var(--fv)',kinds:[['Village','Thatch, chickens and people with pitchforks.'],['Farm','Turnips, cabbages and a very alert goose.'],['Inn','Ale, gossip and a back door left open.'],['Mill','A creaking wheel and sacks worth stealing.']],adj:['Millbrook','Turnip','Muddy','Little','Hollow','Bramble']},
+  Dogs:{c:'var(--fg)',kinds:[['Kennels','Hounds bred to hate goblins. They are good at it.'],['Hound den','A hollow full of bones and growling.'],['Moor','Open ground where the hounds run in packs.']],adj:['Houndsmoor','Snapjaw','Black','Barking','Fang','Howl']},
+  Wild:{c:'var(--fw)',kinds:[['Wood','Trees that lean in to listen.'],['Bog','Sucking mud and bubbles that smell like old eggs.'],['Shore','Shells, herons and the lake\u2019s cold breath.'],['Barrow','An old grave mound. Beetles live here, and worse.'],['Oak','One huge dead oak that drops excellent sticks.'],['Ford','Shallow water and slippery stones.']],adj:['Weeping','Stinking','Hollow','Whispering','Drowned','Crow\u2019s']}
+};
+const FORDER=['Knights','Dwarves','Villagers','Dogs'];
+const ICON={
+ tower:'M6 22V9h2V5h2v3h1.5V5h1V8H14V5h2v4h2v13h-4.5v-5a1.5 1.5 0 0 0-3 0v5z',
+ cross:'M10 2h4v6h5v4h-5v10h-4V12H5V8h5z',
+ flag:'M6 22V2h2v1.5l12 4.5-12 4.5V22z',
+ arch:'M3 22V12a9 9 0 0 1 18 0v10h-5v-8a4 4 0 0 0-8 0v8z',
+ pick:'M2 8c6-6 14-6 20 0l-1.5 1.2c-2-1.5-4-2.2-6.3-2.4L6.5 22l-2.2-1.1L12 6.7C9 6.8 6.5 7.6 3.5 9.2z',
+ rocks:'M1 21c0-4 2-6 5-6s5 2 5 6zM10 21c0-5 3-8 6.5-8S23 16 23 21zM6 14c0-3 2-5 4.5-5S15 11 15 14z',
+ anvil:'M2 7h15c0 3 2 4.5 5 4.5V14h-6l-2 3h3v4H7v-4h3l-2-3C4 14 2 11 2 7z',
+ house:'M2 12 12 3l10 9h-2.5v10h-5v-6h-5v6h-5V12z',
+ mug:'M4 5h11v16H4zM15 8h3a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-3v-2.5h3a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 0-.5-.5h-3z',
+ wheel:'M12 2a10 10 0 1 0 .01 0zm0 3a7 7 0 0 1 1 .07V11h5.93A7 7 0 0 1 13 18.93V13H11v5.93A7 7 0 0 1 5.07 13H11v-2H5.07A7 7 0 0 1 11 5.07V11h2V5.07A7 7 0 0 0 12 5z',
+ paw:'M12 11c3 0 6 4 6 7 0 2-2 3-3.5 3-1 0-1.8-.6-2.5-.6S10.5 21 9.5 21C8 21 6 20 6 18c0-3 3-7 6-7zM5 6.5a2 2.5 0 1 1 0 .1zM9 3.5a2 2.6 0 1 1 0 .1zM15 3.5a2 2.6 0 1 1 0 .1zM19 6.5a2 2.5 0 1 1 0 .1z',
+ grass:'M3 21c1-5 2-8 4-11-1 4-1 7 0 11zM9 21c0-7 1-11 3-16 0 6 0 11 1 16zM15 21c1-5 2-9 5-12-2 4-2 8-2 12z',
+ tree:'M12 1 4.5 11.5H9L3.5 19H11v4h2v-4h7.5L15 11.5h4.5z',
+ oak:'M12 2c-5 0-8 3-8 7 0 3 2 5 5 5.5V23h6v-8.5c3-.5 5-2.5 5-5.5 0-4-3-7-8-7z',
+ reeds:'M5 22V11h1.5v11zM9 22V5h1.5v17zM13 22V8h1.5v14zM17 22V12h1.5v10zM8.5 5a1.2 3 0 1 1 2.4 0 1.2 3 0 1 1-2.4 0zM12.5 8a1.2 3 0 1 1 2.4 0 1.2 3 0 1 1-2.4 0z',
+ shell:'M12 22 2 9.5C4.5 5.5 8 3.5 12 3.5s7.5 2 10 6zM12 6v13M7 7.5l5 11.5M17 7.5l-5 11.5',
+ mound:'M1 21c1-7 6-11 11-11s10 4 11 11zM10 21v-4a2 2 0 0 1 4 0v4z',
+ waves:'M2 9c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0v2.5c-1.5-2-3.5-2-6 0s-4.5 2-7 0-4.5-2-7 0zM2 15c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0v2.5c-1.5-2-3.5-2-6 0s-4.5 2-7 0-4.5-2-7 0z',
+ skull:'M12 2.5a8.5 8.5 0 0 0-8.5 8.5c0 3 1.6 5.2 3.5 6.3V21h10v-3.7c1.9-1.1 3.5-3.3 3.5-6.3A8.5 8.5 0 0 0 12 2.5zM8.5 9.5a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4zm7 0a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4zM12 14l1.3 2.5h-2.6z'
+};
+const KIND_ICON={Warren:'skull',Keep:'tower',Watchtower:'tower','Tourney field':'flag',Abbey:'cross',Hold:'arch',Mine:'pick',Quarry:'rocks',Forge:'anvil',Village:'house',Farm:'grass',Inn:'mug',Mill:'wheel',Kennels:'paw','Hound den':'paw',Moor:'grass',Wood:'tree',Bog:'reeds',Shore:'shell',Barrow:'mound',Oak:'oak',Ford:'waves'};
+const THING='The thing';
+const THING_FAR=['A track crosses the path: too many toes, all pointing backwards.','Somewhere behind them, something copies the drummer\u2019s beat. Badly.','A dead crow hangs from a branch, tied with a very neat bow.','The wind carries a smell like wet coins.','Someone counts the party out loud. None of them did it.','All the snails on the path are facing the same way. Toward them.','A stick lies across the path. It is the best stick any of them has ever seen. Nobody touches it.'];
+const THING_TAKE=['In the morning {a}\u2019s bedding is empty and neatly folded.','{a} went out to pee in the night. Their footprints stop halfway.','Everyone heard {a} say goodnight. Twice. The second time it wasn\u2019t {a}.','{a}\u2019s spoon is on the table, polished. {a} is not.'];
+const THING_GIFT=['A pile of perfectly round rocks sits at the warren door.','A deer lies by the entrance, gutted and neatly folded.','Three jugs of something strong appear by the fire, still warm.','Someone has stuffed every sleeping hole with fresh moss.','A heap of beetle shells, shells and very good sticks, sorted by size.'];
+const GIFT_NEED={0:'Shinies',1:'Grub',2:'Booze',3:'Sleep',4:'Shinies'};
+const GLV=['Unaware','Wary','Angry','Out for blood'];
+const THING_SIGNS=['Something walks here at night. Its footprints change shape halfway.','The birds go quiet here. Something has eaten all the owls.','There are scratches on the trees, higher than anything should reach.','Goblins who sleep here wake up counted. Nobody knows by what.','A smell like wet coins and old milk. Something breathes in the reeds.','Things go missing here. Then they come back, rearranged.'];
+function placeName(f,kind){const F=FACTIONS[f];const a=pick(F.adj);return /^(Millbrook|Houndsmoor|Snapjaw)$/.test(a)?a+' '+kind:'The '+a+' '+kind}
+function mapInit(M){if(!M.lastVisit){M.lastVisit={};FORDER.concat([THING]).forEach(f=>M.lastVisit[f]=H?H.day||1:1)}
+  if(M.thingAct===undefined)M.thingAct=(H&&H.day||1)+ri(2,4);if(M.thingMove===undefined)M.thingMove=(H&&H.day||1)+ri(4,6)}
+function genMap(){
+  const n=ri(10,14),W=600,Hh=420,pts=[{x:300,y:210}];let tries=0;
+  while(pts.length<n&&tries<4000){tries++;const p={x:ri(40,W-40),y:ri(40,Hh-40)};if(pts.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>78))pts.push(p)}
+  const places=pts.map((p,i)=>{if(i===0)return{id:0,x:p.x,y:p.y,name:'The Warren',kind:'Warren',faction:null,desc:'Home. It smells of stew and feet.',known:true,visits:0};
+    const f=R()<.75?pick(FORDER):'Wild',k=pick(FACTIONS[f].kinds);return{id:i,x:p.x,y:p.y,name:placeName(f,k[0]),kind:k[0],faction:f,desc:k[1],known:false,visits:0}});
+  const used=new Set();places.forEach(p=>{let nm=p.name;while(used.has(nm))nm=p.name+' '+pick(['Upper','Lower','East','West','Far']);p.name=nm;used.add(nm)});
+  const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),edges=[],inT=new Set([0]);
+  while(inT.size<places.length){let best=null;for(const a of inT)for(const b of places)if(!inT.has(b.id)){const dd=d(places[a],b);if(!best||dd<best[2])best=[a,b.id,dd]}edges.push([best[0],best[1]]);inT.add(best[1])}
+  const deg=id=>edges.filter(e=>e[0]===id||e[1]===id).length;
+  for(let i=0;i<places.length;i++)for(let j=i+1;j<places.length;j++){if(edges.some(e=>(e[0]===i&&e[1]===j)||(e[0]===j&&e[1]===i)))continue;
+    if(d(places[i],places[j])<150&&R()<.35&&deg(i)<4&&deg(j)<4)edges.push([i,j])}
+  edges.forEach(e=>{if(e[0]===0)places[e[1]].known=true;if(e[1]===0)places[e[0]].known=true});
+  const others=places.filter(p=>p.id!==0);pick(others).haunted=true;
+  const grudges={};FORDER.concat([THING]).forEach(f=>grudges[f]=0);
+  const M={places,edges,grudges,sel:0};mapInit(M);return M;
+}
+const nbrs=id=>H.map.edges.filter(e=>e[0]===id||e[1]===id).map(e=>e[0]===id?e[1]:e[0]);
+function missionPlace(){const k=H.map.places.filter(p=>p.known&&p.id!==0);return pick(k.length?k:H.map.places.filter(p=>p.id!==0))}
+function visitPlace(m,pl){pl.visits++;const out=[];
+  if(pl.faction&&pl.faction!=='Wild'){const g=H.map.grudges;const was=g[pl.faction];H.map.lastVisit[pl.faction]=H.day;g[pl.faction]=Math.min(3,was+1);
+    if(was===2)chron('The '+pl.faction.toLowerCase()+' are out for blood.');out.push(was<3?'The '+pl.faction.toLowerCase()+' notice. They are now '+GLV[g[pl.faction]].toLowerCase()+'.':'The '+pl.faction.toLowerCase()+' are still out for blood.')}
+  if(pl.haunted){const g=H.map.grudges,was=g[THING];H.map.lastVisit[THING]=H.day;g[THING]=Math.min(3,was+1);out.push(pick(THING_SIGNS)+(was<3?' It knows the horde now.':''))}
+  return out}
+function revealNear(pl){let c=nbrs(pl.id).map(i=>H.map.places[i]).filter(p=>!p.known);
+  if(!c.length)c=H.map.places.filter(p=>!p.known&&nbrs(p.id).some(i=>H.map.places[i].known));
+  if(!c.length)return null;const p=pick(c);p.known=true;return p}
+function factLabel(p){return p.faction==='Wild'?'Wild, claimed by no one':p.faction?'Held by the '+p.faction.toLowerCase():'Home'}
+function renderMap(){
+  if(!$('mapsvg'))return;const M=H.map,P=M.places,known=p=>p.known;
+  const curve=(a,b,k)=>{const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y,w=((a.id*7+b.id*13)%5-2)*.07;return 'M'+a.x+' '+a.y+' Q'+(mx-dy*w).toFixed(1)+' '+(my+dx*w).toFixed(1)+' '+b.x+' '+b.y};
+  let s='<defs><filter id="rough" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.5"/></filter>'
+    +'<filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="3"/><feColorMatrix values="0 0 0 0 0.23  0 0 0 0 0.17  0 0 0 0 0.09  0 0 0 0.16 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>'
+    +'<radialGradient id="vig" cx="50%" cy="50%" r="70%"><stop offset="60%" stop-color="var(--parch2)" stop-opacity="0"/><stop offset="100%" stop-color="var(--parch2)" stop-opacity=".95"/></radialGradient></defs>'
+    +'<rect width="600" height="420" fill="var(--parch)"/><rect width="600" height="420" fill="var(--parch)" filter="url(#paper)"/><rect width="600" height="420" fill="url(#vig)"/>'
+    +'<rect x="8" y="8" width="584" height="404" fill="none" stroke="var(--mink)" stroke-width="1.5" opacity=".5" filter="url(#rough)"/>'
+    +'<g transform="translate(560 46)" opacity=".55"><path d="M0-22 5 0 0 22-5 0z" fill="var(--mink)"/><path d="M-22 0 0-4 22 0 0 4z" fill="var(--mink)" opacity=".6"/><text class="deco" y="-27" font-size="14">N</text></g>'
+    +'<text class="deco" x="300" y="404" font-size="16">'+esc(['Here be knights','Here be dogs','Beware the goose','Something lives past here','Dwarves (rude)'][H.seed%5])+'</text>'
+    +'<g filter="url(#rough)">'+M.edges.filter(e=>P[e[0]].known&&P[e[1]].known).map(e=>'<path class="trail" d="'+curve(P[e[0]],P[e[1]])+'"/>').join('')
+    +M.edges.filter(e=>P[e[0]].known!==P[e[1]].known).map(e=>{const a=P[e[0]].known?P[e[0]]:P[e[1]],b=P[e[0]].known?P[e[1]]:P[e[0]];
+      return '<path class="trail stub" d="M'+a.x+' '+a.y+' L'+(a.x+(b.x-a.x)*.4).toFixed(1)+' '+(a.y+(b.y-a.y)*.4).toFixed(1)+'"/>'}).join('')+'</g>';
+  s+=P.filter(known).map(p=>{const col=p.id===0?'var(--fh)':FACTIONS[p.faction].c,r=p.id===0?20:16,ic=ICON[KIND_ICON[p.kind]]||ICON.tree,sc=(r*1.25/24).toFixed(3);
+    return '<g class="pl'+(M.sel===p.id?' sel':'')+'" data-p="'+p.id+'" tabindex="0" role="button" aria-label="'+esc(p.name)+'">'
+      +'<circle class="ring" cx="'+p.x+'" cy="'+p.y+'" r="'+(r+6)+'"/>'
+      +'<circle class="badge" cx="'+p.x+'" cy="'+p.y+'" r="'+r+'" style="stroke:'+col+(p.id===0?';fill:'+col:'')+'"/>'
+      +'<path d="'+ic+'" fill-rule="evenodd" transform="translate('+(p.x-12*sc).toFixed(1)+' '+(p.y-12*sc).toFixed(1)+') scale('+sc+')" style="fill:'+(p.id===0?'var(--parch)':col)+'"/>'
+      +'<text class="lbl" x="'+p.x+'" y="'+(p.y+r+16)+'">'+esc(p.name.replace(/^The /,''))+'</text></g>'}).join('');
+  $('mapsvg').innerHTML=s;
+  const hid=P.filter(p=>!p.known).length,p=P[M.sel]||P[0];
+  $('mapside').innerHTML='<h2>'+esc(p.name)+'</h2><p class="job" style="margin:2px 0">'+esc(p.kind)+'. '+factLabel(p)+(p.faction&&p.faction!=='Wild'?' ('+GLV[M.grudges[p.faction]].toLowerCase()+')':'')+'</p>'
+    +'<p class="blurb">'+esc(p.desc)+'</p>'+(p.haunted&&p.visits?'<p class="blurb" style="color:var(--blood)">'+esc(THING_SIGNS[p.id%THING_SIGNS.length])+'</p>':'')
+    +(p.id?'<p class="st">'+(p.visits?'Missions sent here: '+p.visits:'No goblin has been sent here yet.')+'</p>':'')
+    +'<h3>Grudges</h3><ul class="needs">'+FORDER.concat([THING]).map(f=>{const v=M.grudges[f];return '<li><span>'+f+'</span><span class="lv'+(v>=2?v:0)+'">'+GLV[v]+' <span class="pips">'+pipStr(v)+'</span></span></li>'}).join('')+'</ul>'
+    +'<p class="seed" style="margin-top:10px">'+hid+' place'+(hid===1?'':'s')+' still unknown. Clear a mission to find one nearby.</p>';
+}
+
+/* ---------- overheard talk & chronicle ---------- */
+const TALK={
+  warm:['{a}: \u201CSaved you the crunchy bit.\u201D {b}: \u201C\u2026Thanks.\u201D','{a} and {b} share a jug and agree the moon is suspicious.','{a}: \u201CYou weren\u2019t completely useless yesterday.\u201D {b}: \u201CFrom you, that\u2019s a hug.\u201D','{a} picks a tick off {b}\u2019s ear without being asked.','{a} and {b} laugh about a knight falling off a horse. Again.'],
+  cool:['{a}: \u201CWho ate my rat?\u201D {b}: \u201CRats run off. It\u2019s nature.\u201D','{b} snores. {a} counts every one, out loud.','{a}: \u201CNice hat.\u201D {b}: \u201CIt\u2019s a bucket.\u201D {a}: \u201CI know.\u201D','{a} tells everyone {b} was scared of a duck. {b} was.','{a} and {b} argue about whose turn it is to scrub the pot until neither does.'],
+  ease:{Grub:'{a} slips {b} a roasted beetle. \u201CDon\u2019t tell the cook.\u201D',Booze:'{a} shares the last of a jug with {b}.',Shinies:'{a} gives {b} a pebble. It is a very good pebble.',Sleep:'{a} sings {b} to sleep. Badly, but it works.'},
+  worsen:{Grub:'{a} describes a feast to {b} in loving detail. {b}\u2019s stomach growls all night.',Booze:'{a}: \u201CHeard the brewer spat in the vat.\u201D {b} stops drinking.',Shinies:'{a} shows {b} their shiny. {b} has no shiny.',Sleep:'{a} tells {b} a story about the thing. {b} does not sleep.'},
+  place:['{a}: \u201CBat says there\u2019s a {k} out past {n}.\u201D {b}: \u201CBats lie.\u201D It isn\u2019t lying: {p}.','{a} swears they saw a {k} from the top of a tree near {n}. {b} goes to look. It\u2019s real: {p}.'],
+  up:['{a} brags to {b} about robbing the {f}, loudly, near an open window. Word gets around.','{a} and {b} make up a rude song about the {f}. It catches on. The {f} hear it.'],
+  down:['{a} and {b} agree to leave the {f} alone. For now.','{a} talks {b} out of a revenge plan against the {f}. Things quiet down.']
+};
+function chron(t){(H.chron=H.chron||[]).push({d:H.day,t})}
+function pairKey(a,b){return a<b?a+'-'+b:b+'-'+a}
+function fill(t,o){return t.replace(/\{(\w)\}/g,(_,k)=>o[k]!==undefined?o[k]:'')}
+function overhear(){
+  const L=alive(),out=[];if(L.length<2)return out;
+  const n=ri(1,3);H.warmth=H.warmth||{};
+  for(let i=0;i<n;i++){
+    let a,b;const ts=H.ties.filter(t=>t.kind!=='kin'&&!gob(t.a).dead&&!gob(t.b).dead&&!gob(t.a).gone&&!gob(t.b).gone);
+    if(ts.length&&Math.random()<.6){const t=pick(ts);[a,b]=Math.random()<.5?[gob(t.a),gob(t.b)]:[gob(t.b),gob(t.a)]}
+    else{const s=shuffle(L);a=s[0];b=s[1]}
+    const kind=tieBetween(a.id,b.id),r=Math.random(),M=H.map;
+    let line,note='';
+    const hidden=M.places.filter(p=>!p.known&&nbrs(p.id).some(i=>M.places[i].known));
+    if(r<.45){ // tie talk
+      const pos=Math.random()<(kind==='friend'?.7:kind==='rival'?.3:kind==='kin'?.6:.5);
+      line=fill(pick(pos?TALK.warm:TALK.cool),{a:a.name,b:b.name});
+      if(kind==='kin'){note='Kin squabble, kin make up.'}
+      else{const k=pairKey(a.id,b.id),w=(H.warmth[k]||0)+(pos?1:-1);H.warmth[k]=w;
+        const t=H.ties.find(t=>pairKey(t.a,t.b)===k);
+        if(w>=3&&kind!=='friend'){if(t){t.kind='friend';t.why='made up over time'}else H.ties.push({a:a.id,b:b.id,kind:'friend',why:'grew on each other'});H.warmth[k]=0;note=a.name+' and '+b.name+' are friends now.';chron(note)}
+        else if(w<=-3&&kind!=='rival'){if(t){t.kind='rival';t.why='fell out, slowly'}else H.ties.push({a:a.id,b:b.id,kind:'rival',why:'got on each other\u2019s nerves'});H.warmth[k]=0;note=a.name+' and '+b.name+' are rivals now.';chron(note)}
+        else{H.warmth[k]=Math.max(-3,Math.min(3,w));note=pos?'Things warm between them.':'Things cool between them.'}}
+    }else if(r<.75){ // need talk
+      const need=pick(NEEDS),cheer=Math.random()<.55;
+      if(cheer&&b.needs[need]>0){b.needs[need]--;line=fill(TALK.ease[need],{a:a.name,b:b.name});note=b.name+'\u2019s '+need+' eases to '+NEEDW[need][b.needs[need]]+'.'}
+      else if(!cheer&&b.needs[need]<3){b.needs[need]++;line=fill(TALK.worsen[need],{a:a.name,b:b.name});note=b.name+'\u2019s '+need+' worsens to '+NEEDW[need][b.needs[need]]+'.'}
+      else{line=fill(TALK.ease[need],{a:a.name,b:b.name});note=b.name+' could not want it less.'}
+    }else if(r<.85&&hidden.length){ // place rumor
+      const p=pick(hidden),via=M.places[nbrs(p.id).find(i=>M.places[i].known)];p.known=true;
+      line=fill(pick(TALK.place),{a:a.name,b:b.name,k:p.kind.toLowerCase(),n:via.name,p:p.name});note='New place on the map.';chron('Gossip led to '+p.name+'.');
+    }else{ // grudge talk
+      const g=M.grudges,warm=FORDER.filter(f=>g[f]>0),down=warm.length&&Math.random()<.5,f=down?pick(warm):pick(FORDER);
+      if(down){g[f]--;line=fill(pick(TALK.down),{a:a.name,b:b.name,f:f.toLowerCase()});note='The '+f.toLowerCase()+' are now '+GLV[g[f]].toLowerCase()+'.'}
+      else{const was=g[f];g[f]=Math.min(3,was+1);M.lastVisit[f]=H.day;line=fill(pick(TALK.up),{a:a.name,b:b.name,f:f.toLowerCase()});note='The '+f.toLowerCase()+' are now '+GLV[g[f]].toLowerCase()+'.';
+        if(was<3&&g[f]===3)chron('Thanks to loose talk, the '+f.toLowerCase()+' are out for blood.')}
+    }
+    out.push({c:'say',t:line+(note?' ('+note+')':'')});
+  }
+  return out;
+}
+function renderChron(){
+  const C=(H.chron||[]);if(!C.length)return '';const days=[...new Set(C.map(c=>c.d))].sort((a,b)=>b-a);
+  return '<details class="chron" open><summary>Chronicle</summary>'+days.map(d=>'<div class="cday"><b>Day '+d+'</b><ul>'+C.filter(c=>c.d===d).map(c=>'<li>'+esc(c.t)+'</li>').join('')+'</ul></div>').join('')+'</details>';
+}
+
+if(!load())newHorde();else render();
+</script>
+</body>
+</html>
