@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Horde</title>
+<title>GrimmGoblin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -143,6 +143,18 @@ svg.map text.deco{fill:var(--mink);opacity:.55;font-family:"Grenze Gotisch",Geor
 .slotlist small{display:block;color:var(--muted);font-size:14px}
 .slotlist .acts{margin:0}
 .mapscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pf{display:block;flex:none;image-rendering:pixelated;border-radius:3px;box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
+.pf.gone{filter:grayscale(1);opacity:.6}
+ul.roster li button.rbtn{display:flex;align-items:center;gap:10px}
+.pick button.pbtn{display:flex;align-items:center;gap:8px}
+.party .pm{display:inline-flex;align-items:center;gap:6px}
+.dhead{display:flex;gap:16px;align-items:flex-start;margin-bottom:6px}.dname{flex:1;min-width:0}
+figure.cameo{margin:0;padding:6px 6px 0;background:linear-gradient(var(--field),var(--panel));border:3px double var(--line);border-radius:6px;flex:none;width:138px}
+figure.cameo .pf{width:120px;height:120px;box-shadow:inset 0 0 0 1px var(--line),0 0 0 2px var(--accent)}
+figure.cameo figcaption{text-align:center;padding:5px 0 6px;font-size:13px;color:var(--muted);line-height:1.2}
+svg.web .node circle.ring{fill:none;stroke:var(--line);stroke-width:2}
+svg.web .node.sel circle.ring{stroke:var(--accent);stroke-width:4}
+svg.web .node .pf{box-shadow:none}
 .fallen{margin-top:10px;font-size:14px;color:var(--muted)}
 .st{font-size:14px;color:var(--muted)}.st .w{color:var(--gold)}
 @media (max-width:720px){
@@ -162,6 +174,8 @@ svg.map text.deco{fill:var(--mink);opacity:.55;font-family:"Grenze Gotisch",Geor
   .acts button{flex:1 1 auto}
   .grid{grid-template-columns:minmax(0,1fr)}
   ul.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  figure.cameo{width:104px}figure.cameo .pf{width:88px;height:88px}
+  .dhead{gap:12px}
 }
 </style>
 </head>
@@ -298,7 +312,7 @@ function gen0(seed){
     const needs={};NEEDS.forEach(k=>needs[k]=pick([0,0,0,1,1,1,1,2,2,3]));
     if(job.ok)needs[job.ok]=0;
     const q=shuffle(QUIRKS).slice(0,2);
-    gobs.push({id:i,name,job:job.n,st,needs,quirks:q,wound:0,dead:false,out:false});
+    gobs.push({id:i,name,look:hashStr(name),job:job.n,st,needs,quirks:q,wound:0,dead:false,out:false});
   }
   const ties=[],has=(a,b)=>ties.some(t=>(t.a===a&&t.b===b)||(t.a===b&&t.b===a));
   // kin: clutches
@@ -309,6 +323,178 @@ function gen0(seed){
   gobs.forEach(g=>{const n=ri(1,2);for(let k=0;k<n;k++){const o=pick(gobs).id;if(o===g.id||has(g.id,o))continue;
     const kind=R()<.55?'friend':'rival';ties.push({a:g.id,b:o,kind,why:pick(kind==='friend'?FRIEND_WHY:RIVAL_WHY)});}});
   const lair=pick(H_LAIR);return {seed,name:hordeName(),lair,gobs,ties,day:1,mission:null,report:[],lastHatch:null,map:genMap(),warmth:{},chron:[{d:1,t:'The horde gathers in '+lair+'. '+size+' goblins, no plan.'}]};
+}
+
+/* ---------- portraits: seeded 20x20 pixel goblin busts ---------- */
+const PX_SKIN=['#6f8f3a','#5c7a2e','#86a043','#4f6b34','#7a8a5c','#6a7a60','#9a9842','#a8a052','#7d9a52'];
+const PX_EYE=['#e8d040','#e8d040','#f0b030','#d8e070','#d03a2a','#e0602a'];
+const PX_TOOTH='#ebe3c4',PX_MOUTH='#2a1610',PX_INK='#16120c';
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const m=f<0?0:255,a=Math.abs(f);
+  r=Math.round(r+(m-r)*a);g=Math.round(g+(m-g)*a);b=Math.round(b+(m-b)*a);return '#'+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
+/* job kit: clothing and backdrop */
+const PX_KIT={
+  'Shaman':{cloth:'#5a4632',bg:'#2a2018'},'Cook':{cloth:'#6a5a44',bg:'#2c2418'},'Trapper':{cloth:'#6b5236',bg:'#22201a'},
+  'Grunt':{cloth:'#55574a',bg:'#2a2620'},'Scout':{cloth:'#3f5a2c',bg:'#1a2414'},'Tunneler':{cloth:'#5a4a3a',bg:'#1e1a14'},
+  'Beast-wrangler':{cloth:'#4a3a2a',bg:'#201a14'},'Scavenger':{cloth:'#6a5a40',bg:'#26201a'},'Tinkerer':{cloth:'#5a4a3a',bg:'#1e1c20'},
+  'Drummer':{cloth:'#7a2a22',bg:'#2a1a16'},'Brewer':{cloth:'#6a4a2a',bg:'#24180e'},'Grave-robber':{cloth:'#2e2a2a',bg:'#141418'},
+  'Poisoner':{cloth:'#3a3a2a',bg:'#161a10'},'Mushroom farmer':{cloth:'#5a4a32',bg:'#1a1614'},'Bat-keeper':{cloth:'#3a2a3a',bg:'#141018'},
+  'Rat-catcher':{cloth:'#5a4a3a',bg:'#1e1a14'},'Snitch':{cloth:'#3a3a3a',bg:'#1a1a1a'},'Bone-carver':{cloth:'#5a4a3a',bg:'#221c16'},
+  'Lookout':{cloth:'#4a5a3a',bg:'#1a1e22'},'Tax accountant':{cloth:'#2a2a3a',bg:'#1e1e26'}
+};
+const PX_CACHE=new Map();
+function lookOf(g){
+  const r=mulberry32(g.look||hashStr(g.name));const p=a=>a[Math.floor(r()*a.length)];
+  const ear=p(['big','big','big','droopy','droopy','long']);
+  return {skin:p(PX_SKIN),eye:p(PX_EYE),wide:r()<.45,ear,
+    dmg:r()<.35?{side:r()<.5?'l':'r',kind:r()<.5?'torn':'notch'}:null,
+    nose:p(['button','long','long','hooked','hooked','pointy']),
+    mouth:p(['plain','snaggle','snaggle','tusks','tusks','grin']),snagX:r()<.5?9:10,
+    eyes:p(['both','both','both','squint','patch']),eyeSide:r()<.5?'l':'r',brow:r()<.5?'angry':'flat',
+    warts:p([[],[],[[7,6]],[[12,9]],[[13,6],[7,10]],[[8,5],[12,10],[6,9]]])};
+}
+function portraitGrid(g){
+  const L=lookOf(g),K=PX_KIT[g.job]||{cloth:'#5a4a3a',bg:'#201a14'},G=Array.from({length:20},()=>Array(20).fill(null));
+  const px=(x,y,c)=>{if(x>=0&&x<20&&y>=0&&y<20)G[y][x]=c};
+  const rect=(x0,y0,x1,y1,c)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)px(x,y,c)};
+  const sk=L.skin,skD=shade(sk,-.2),skDD=shade(sk,-.42),skL=shade(sk,.2),inner=shade(sk,-.5);
+  const bg=K.bg,halo=shade(bg,.08);
+  /* backdrop */
+  rect(0,0,19,19,bg);rect(3,2,16,14,halo);rect(5,1,14,16,halo);
+  [[0,0],[19,0],[0,19],[19,19]].forEach(([x,y])=>px(x,y,shade(bg,-.35)));
+  if(g.hatchling)return hatchGrid(g,L,K,G,px,rect,sk,skD,skDD,skL,inner);
+  const x0=L.wide?5:6,x1=L.wide?14:13,cl=K.cloth,clD=shade(cl,-.22);
+  /* body and neck */
+  rect(5,15,14,15,cl);rect(3,16,16,16,cl);rect(2,17,17,19,cl);rect(2,17,3,19,clD);rect(16,17,17,19,clD);
+  rect(8,13,11,14,skD);rect(8,15,11,15,clD);
+  /* head: big cranium, narrow pointed chin */
+  rect(x0+1,4,x1-1,4,sk);rect(x0,5,x1,10,sk);rect(x0+1,11,x1-1,11,sk);rect(x0+2,12,x1-2,12,sk);
+  rect(x1,5,x1,10,skD);px(x1-1,11,skD);px(x1-2,12,skD);px(x0+2,5,skL);px(x0+3,4,skL);
+  /* ears */
+  const EARS={big:[[-1,6],[-1,7],[-1,8],[-1,9],[-2,6],[-2,7],[-2,8],[-3,5],[-3,6],[-3,7],[-4,4],[-4,5],[-5,3]],
+    droopy:[[-1,6],[-1,7],[-1,8],[-1,9],[-2,7],[-2,8],[-2,9],[-3,8],[-3,9],[-3,10],[-4,10],[-4,11],[-5,12]],
+    long:[[-1,6],[-1,7],[-1,8],[-1,9],[-2,7],[-2,8],[-3,7],[-3,8],[-4,7],[-4,8],[-5,7],[-6,7]]};
+  const EIN={big:[[-2,7],[-3,6]],droopy:[[-2,8],[-3,9]],long:[[-2,8],[-3,8],[-4,8]]};
+  const drawEar=side=>{let pts=EARS[L.ear].slice(),ins=EIN[L.ear];const d=L.dmg&&L.dmg.side===side?L.dmg.kind:null;
+    if(d==='torn')pts=pts.slice(0,pts.length-3);
+    if(d==='notch')pts=pts.filter((_,i)=>i!==Math.floor(pts.length*.6));
+    const mx=dx=>side==='l'?x0+dx:x1-dx,c=side==='l'?sk:skD;
+    pts.forEach(([dx,y])=>px(mx(dx),y,c));ins.forEach(([dx,y])=>{if(pts.some(q=>q[0]===dx&&q[1]===y))px(mx(dx),y,inner)});
+    if(d==='torn'){const t=pts[pts.length-1];px(mx(t[0]),t[1],skDD)}};
+  drawEar('l');drawEar('r');
+  /* eyes and brows */
+  const eL=x0+(L.wide?2:1),eR=x1-(L.wide?2:1);
+  const eye=(x,pdx,side)=>{if(L.eyes==='squint'&&L.eyeSide===side){rect(Math.min(x,x+pdx),8,Math.max(x,x+pdx),8,skDD);return}
+    if(L.eyes==='patch'&&L.eyeSide===side){rect(Math.min(x,x+pdx),7,Math.max(x,x+pdx),9,PX_INK);return}
+    px(x,8,L.eye);px(x+pdx,8,PX_INK)};
+  const shifty=g.job==='Snitch'?1:0;
+  eye(eL,1,'l');eye(eR,-1,'r');
+  if(shifty){px(eL,8,PX_INK);px(eL+1,8,L.eye);px(eR,8,PX_INK);px(eR-1,8,L.eye);if(L.eyes!=='both'){}}
+  if(L.eyes==='patch'){const sx=L.eyeSide==='l'?eL:eR;for(let i=0;i<6;i++)px((L.eyeSide==='l'?sx+1+i:sx-1-i),7-Math.floor(i/1.5),'#3a2a1a')}
+  if(L.brow==='angry'){px(eL,6,skDD);px(eL+1,7,skDD);px(eR,6,skDD);px(eR-1,7,skDD)}else{rect(eL,7,eL+1,7,skDD);rect(eR-1,7,eR,7,skDD)}
+  /* mouth */
+  if(L.mouth==='grin'){rect(x0+1,10,x1-1,10,PX_MOUTH);for(let x=x0+2;x<x1-1;x+=2)px(x,10,PX_TOOTH)}
+  else{rect(8,10,11,10,PX_MOUTH);
+    if(L.mouth==='snaggle'){px(L.snagX,10,PX_TOOTH);px(L.snagX,11,PX_TOOTH)}
+    if(L.mouth==='tusks'){px(8,10,PX_TOOTH);px(11,10,PX_TOOTH);px(8,9,PX_TOOTH);px(11,9,PX_TOOTH)}}
+  /* nose */
+  if(L.nose==='button'){px(9,9,skD);px(10,9,skDD)}
+  else if(L.nose==='long'){rect(9,8,10,8,skD);rect(9,9,10,9,skD);px(9,10,skDD);px(10,10,skDD);px(9,8,skL)}
+  else if(L.nose==='hooked'){px(9,7,skL);px(9,8,skD);px(10,8,skD);px(10,9,skD);px(11,9,skDD);px(9,9,skD)}
+  else{px(9,8,skL);px(9,9,skD);px(10,9,skD);px(8,9,skDD)}
+  /* warts */
+  L.warts.forEach(([x,y])=>{const wx=x0===5?x-(x<10?1:-1):x;if(G[y][wx]===sk||G[y][wx]===skD)px(wx,y,shade(sk,-.3))});
+  jobGear(g.job,{px,rect,x0,x1,eL,eR,sk,skD,skDD,cl,clD,G});
+  return G;
+}
+function jobGear(j,o){
+  const {px,rect,x0,x1,eL,eR,cl,clD,skDD}=o;
+  const hood=(c,ears)=>{const cD=shade(c,-.25),cL=shade(c,.15);
+    rect(x0,2,x1,4,c);rect(x0+1,1,x1-1,1,c);px(x0+1,2,cL);px(x0+2,1,cL);rect(x1,2,x1,4,cD);
+    rect(x0,5,x0,6,cD);rect(x1,5,x1,6,shade(c,-.35));rect(4,15,15,16,c)};
+  const metal='#7a7e82',metD='#4e5256',metL='#b0b4b8',wood='#6a4a2a',bone='#e4dac0';
+  if(j==='Shaman'){rect(x0,4,x1,4,'#7a3a2a');px(x0+2,4,bone);px(x1-2,4,bone);
+    [[x0,3],[x0,2],[x0-1,1],[x0+1,1],[x0-1,0],[x1,3],[x1,2],[x1+1,1],[x1-1,1],[x1+1,0]].forEach(([x,y])=>px(x,y,bone));
+    px(9,3,'#c03a2a');px(10,2,'#2a6a8a');px(10,3,'#2a6a8a');
+    for(let x=6;x<=13;x++)px(x,16,x%2?bone:'#9a3a2a');px(9,17,bone);px(10,17,bone)}
+  else if(j==='Cook'){rect(x0+1,3,x1-1,3,'#b8402a');rect(x0,4,x1,4,'#b8402a');px(x1+1,4,'#b8402a');px(x1+2,5,'#9a3020');px(x0+2,3,'#d86a4a');
+    rect(6,16,13,19,'#d4c8aa');rect(6,16,13,16,'#bfb294');px(8,18,'#8a5a30');px(9,18,'#8a5a30');px(11,17,'#a07040');
+    for(let i=0;i<6;i++)px(17-Math.floor(i/2),13+i,'#9aa0a6');rect(16,11,18,12,'#b8bec4');px(16,11,'#e0e4e8')}
+  else if(j==='Trapper'){rect(x0+1,3,x1-1,4,'#5a4028');rect(x0,4,x0,4,'#5a4028');px(x0+2,3,'#7a5a38');
+    const rp='#c0a060',rpD='#8a7040';[[14,15],[15,14],[16,14],[17,15],[17,16],[16,17],[15,17],[14,16]].forEach(([x,y],i)=>px(x,y,i%2?rp:rpD));
+    px(4,17,metal);px(5,17,metL);px(4,18,metD)}
+  else if(j==='Grunt'){rect(x0,2,x1,4,metal);rect(x0+1,1,x1-1,1,metal);rect(x0-1,4,x1+1,4,metD);px(x0+1,2,metL);px(x0+2,1,metL);px(x0+4,2,metD);px(x0+5,3,metD);
+    rect(2,15,5,17,metal);rect(14,15,17,17,metD);px(3,15,metL)}
+  else if(j==='Scout'){hood('#3f5a2c');px(x0+3,1,'#7ab040');px(x0+4,0,'#7ab040');px(x0+4,1,'#5a8a30')}
+  else if(j==='Tunneler'){rect(x0,3,x1,4,'#7a6a40');rect(x0+1,2,x1-1,2,'#8a7a48');rect(9,0,10,1,'#e8e0c0');px(9,0,'#ffb030');px(10,0,'#ffd070');
+    px(eL-1,10,skDD);px(eR,11,skDD);
+    for(let i=0;i<5;i++)px(15+Math.floor(i*.8),19-i,wood);rect(15,13,19,13,metal);px(15,14,metD);px(19,14,metD)}
+  else if(j==='Beast-wrangler'){const fur='#7a746a',furD='#55504a';rect(x0,2,x1,4,fur);rect(x0+1,1,x1-1,1,fur);px(x0+1,0,fur);px(x1-1,0,fur);px(x0+1,1,furD);px(x1-1,1,furD);
+    px(9,4,'#2a2420');px(10,4,'#2a2420');px(x0+2,3,'#e0d040');px(x1-2,3,'#e0d040');
+    for(let x=2;x<18;x++){px(x,15+(x%2),fur);px(x,17,x%3?furD:fur)}}
+  else if(j==='Scavenger'){const bt='#4a3020';rect(x0+2,1,x0+4,4,bt);rect(x0+5,3,x0+7,4,bt);px(x0+2,1,'#6a4a30');px(x0+7,4,'#2a1a10');
+    rect(14,11,18,16,'#a08a5a');rect(15,10,17,10,'#a08a5a');px(16,9,'#6a5a3a');px(15,12,'#c0aa78');px(17,14,'#7a6a40');px(14,14,'#d0c040')}
+  else if(j==='Tinkerer'){rect(x0,5,x1,5,'#3a2a1a');rect(x0+1,4,x0+2,5,'#c08a3a');rect(x1-2,4,x1-1,5,'#c08a3a');px(x0+1,4,'#8ad0d0');px(x1-1,4,'#8ad0d0');
+    px(12,17,'#c08a3a');px(11,17,'#a07030');px(13,17,'#a07030');px(12,16,'#a07030');px(12,18,'#a07030');
+    rect(15,13,15,19,metal);rect(14,12,16,12,metal);px(14,11,metal);px(16,11,metal)}
+  else if(j==='Drummer'){rect(5,17,14,19,'#a07040');rect(5,17,14,17,'#e0d0a0');rect(5,18,14,18,'#7a4a2a');px(7,19,'#e0d0a0');px(12,19,'#e0d0a0');
+    for(let i=0;i<4;i++){px(15+i,12+i,'#c8b080');px(4-i,12+i,'#c8b080')}px(15,12,'#e8e0c8');px(4,12,'#e8e0c8');
+    for(let i=0;i<8;i++)px(5+i,15+Math.floor(i/4),'#4a2a1a')}
+  else if(j==='Brewer'){rect(14,15,17,19,'#8a6a3a');rect(14,14,17,14,'#f0e8d0');px(15,13,'#f0e8d0');px(16,13,'#f0e8d0');rect(18,16,18,17,'#6a4a2a');px(15,16,'#a8844a');
+    px(eL,9,'#b85a3a');px(eR,9,'#b85a3a')}
+  else if(j==='Grave-robber'){hood('#2e2a2a');rect(16,5,18,8,'#8a8f94');px(16,5,'#b0b4b8');rect(17,9,17,19,wood);px(4,17,'#d0b040')}
+  else if(j==='Poisoner'){rect(x0,10,x1,11,'#4a4a3a');rect(x0+1,12,x1-1,12,'#4a4a3a');px(x0+2,10,'#5a5a4a');
+    for(let i=0;i<5;i++){px(5+i*2,15+Math.floor(i/1.5),'#7ae04a');px(5+i*2,16+Math.floor(i/1.5),'#3a8a2a')}
+    px(16,16,'#7ae04a');px(16,15,'#9a8a70')}
+  else if(j==='Mushroom farmer'){const cap='#a8322a',capD='#7a2018';rect(x0-1,3,x1+1,4,cap);rect(x0+1,2,x1-1,2,cap);rect(x0+3,1,x1-3,1,cap);rect(x0-1,4,x1+1,4,capD);
+    px(x0+2,2,'#f0e8d0');px(x1-3,3,'#f0e8d0');px(x0,3,'#f0e8d0');px(x1-1,2,'#f0e8d0');
+    px(3,4,'#b8f080');px(16,2,'#b8f080');px(2,10,'#90d060');px(17,9,'#90d060')}
+  else if(j==='Bat-keeper'){const w='#2a222a',wD='#141014';rect(14,13,15,14,'#3a2e36');px(14,12,'#3a2e36');px(15,12,'#3a2e36');px(14,13,'#e03a2a');
+    [[16,12],[17,11],[18,12],[17,13],[16,13],[18,13],[13,12],[12,11],[13,13]].forEach(([x,y],i)=>px(x,y,i%3?w:wD));
+    rect(14,15,15,15,'#3a2e36')}
+  else if(j==='Rat-catcher'){const rat='#7a6a5a';rect(x0+1,3,x1-1,4,'#5a4a38');px(x0+2,3,'#6a5a46');
+    rect(13,13,16,14,rat);px(17,13,rat);px(18,14,'#c08a8a');px(17,12,'#c08a8a');px(16,13,PX_INK);
+    for(let i=0;i<4;i++)px(12-i,15+Math.floor(i/2),'#c08a8a')}
+  else if(j==='Snitch'){hood('#3a3a3a');rect(7,13,12,14,cl);rect(7,13,7,14,clD);px(x0-1,9,'#d0b040')}
+  else if(j==='Bone-carver'){const bL='#f0e8d4';rect(x0-2,6,x1+2,6,bone);px(x0-3,5,bL);px(x0-3,7,bL);px(x1+3,5,bL);px(x1+3,7,bL);
+    rect(15,14,15,19,bone);px(15,13,bL);px(16,13,bL)}
+  else if(j==='Lookout'){const br='#a07a30',brD='#7a5a20';rect(eR-1,7,17,9,br);rect(18,6,18,10,brD);px(eR-1,8,'#3a3020');rect(eR+1,7,eR+1,9,brD);px(14,7,'#c89a48');
+    rect(x0+1,3,x1-1,4,'#4a5a3a')}
+  else if(j==='Tax accountant'){const fr='#c9b060',gl='#d8ece8';
+    px(eL-1,8,fr);px(eL+2,8,fr);px(eR+1,8,fr);px(eR-2,8,fr);px(eL,9,fr);px(eR,9,fr);px(eL,7,fr);px(eR,7,fr);
+    if(o.G[8][eL]!==PX_INK)px(eL,8,gl);if(o.G[8][eR]!==PX_INK)px(eR,8,gl);
+    px(x1+1,3,'#f0ece0');px(x1+2,2,'#f0ece0');px(x1+3,1,'#d8d0bc');px(x1,4,'#2a2a3a');
+    rect(8,15,11,15,'#e8e0c8');px(9,16,'#8a2a2a');px(10,16,'#8a2a2a');px(9,17,'#8a2a2a');
+    rect(14,16,18,19,'#6a2a22');rect(15,16,18,16,'#e8e0c8');px(14,16,'#4a1a14')}
+}
+/* hatchlings: small round body, big eyes, eggshell cap, no gear */
+function hatchGrid(g,L,K,G,px,rect,sk,skD,skDD,skL,inner){
+  const cl=K.cloth;
+  rect(6,17,13,17,sk);rect(5,18,14,19,sk);rect(13,18,14,19,skD);
+  rect(7,16,12,16,skD);
+  rect(7,7,12,7,sk);rect(6,8,13,13,sk);rect(7,14,12,14,sk);rect(8,15,11,15,sk);
+  rect(13,8,13,13,skD);px(12,14,skD);px(11,15,skD);px(8,8,skL);px(7,9,skL);
+  /* small ears */
+  const e=L.ear==='droopy'?[[-1,10],[-1,11],[-2,11],[-2,12],[-3,12]]:[[-1,9],[-1,10],[-2,9],[-2,8],[-3,8]];
+  e.forEach(([dx,y])=>{px(6+dx,y,sk);px(13-dx,y,skD)});px(5,L.ear==='droopy'?11:9,inner);px(14,L.ear==='droopy'?11:9,inner);
+  /* big eyes: 2x2 */
+  rect(7,10,8,11,L.eye);px(8,11,PX_INK);px(8,10,PX_INK);px(7,10,'#fff8d0');
+  rect(11,10,12,11,L.eye);px(11,11,PX_INK);px(11,10,PX_INK);px(12,10,'#fff8d0');
+  px(9,12,skD);px(10,12,skDD);
+  rect(9,13,10,13,PX_MOUTH);if(L.mouth==='snaggle'||L.mouth==='tusks')px(L.snagX,13,PX_TOOTH);
+  px(7,12,shade(sk,.12));px(12,12,shade(sk,.08));
+  /* eggshell cap */
+  const sh='#ece6d0',shD='#c8c0a4';
+  rect(7,5,12,6,sh);rect(8,4,11,4,sh);px(6,6,sh);px(13,6,sh);px(7,7,sh);px(9,7,sh);px(11,7,sh);px(12,7,sh);
+  px(8,4,shD);px(12,6,shD);px(13,6,shD);px(10,5,'#a89a7a');px(8,6,'#a89a7a');
+  return G;
+}
+function portrait(g,size,cls){
+  const key=(g.look||hashStr(g.name))+'|'+g.job+'|'+(g.hatchling?1:0);let inner=PX_CACHE.get(key);
+  if(!inner){const G=portraitGrid(g);let s='';
+    for(let y=0;y<20;y++){let x=0;while(x<20){const c=G[y][x];let e=x+1;while(e<20&&G[y][e]===c)e++;if(c)s+='<rect x="'+x+'" y="'+y+'" width="'+(e-x)+'" height="1" fill="'+c+'"/>';x=e}}
+    inner=s;PX_CACHE.set(key,inner)}
+  return '<svg class="pf'+(cls?' '+cls:'')+'" viewBox="0 0 20 20" width="'+size+'" height="'+size+'" shape-rendering="crispEdges" role="img" aria-label="Portrait of '+esc(g.name)+'">'+inner+'</svg>';
 }
 
 /* ---------- UI ---------- */
@@ -324,7 +510,7 @@ function load(){try{const x=readIdx();
   if(!x.list.length){const old=JSON.parse(localStorage.getItem(KEY)||'null');if(old&&old.H&&Array.isArray(old.H.gobs)){if(applyLoad(old)){save();try{localStorage.removeItem(KEY)}catch(e){}return true}}return false}
   return loadSlot(x.current&&x.list.some(e=>e.id===x.current)?x.current:x.list[x.list.length-1].id)}catch(e){return false}}
 function applyLoad(s){try{if(s&&s.H&&Array.isArray(s.H.gobs)){H=s.H;sel=s.sel||0;H.day=H.day||1;H.warmth=H.warmth||{};H.chron=H.chron||[{d:H.day,t:'The chronicle begins, late, in '+H.lair+'.'}];if(!H.map)H.map=genMap();mapInit(H.map);if(H.lastHatch===undefined)H.lastHatch=null;H.mission=H.mission||null;H.report=H.report||[];
-  H.gobs.forEach(g=>{fixStats(g.st);g.wound=g.wound||0;g.dead=!!g.dead;g.out=!!g.out});if(!gob(sel)||gob(sel).dead||gob(sel).gone)sel=(alive()[0]||{id:0}).id;return true}}catch(e){}return false}
+  H.gobs.forEach(g=>{fixStats(g.st);if(!g.look)g.look=hashStr(g.name);g.wound=g.wound||0;g.dead=!!g.dead;g.out=!!g.out});if(!gob(sel)||gob(sel).dead||gob(sel).gone)sel=(alive()[0]||{id:0}).id;return true}}catch(e){}return false}
 function renderSlots(){const x=readIdx();if(!$('slots'))return;
   $('slots').innerHTML='<ul class="slotlist">'+x.list.slice().sort((a,b)=>b.at-a.at).map(e=>'<li'+(e.id===slotId?' class="cur"':'')+'><span><b>'+esc(e.name)+'</b><small>Day '+e.day+', '+e.alive+' goblin'+(e.alive===1?'':'s')+(e.id===slotId?', playing now':'')+'</small></span><span class="acts">'
     +(e.id===slotId?'':'<button data-slot="go" data-id="'+e.id+'">Switch</button>')+'<button data-slot="del" data-id="'+e.id+'">Delete</button></span></li>').join('')+'</ul>'
@@ -355,8 +541,8 @@ function renderHeader(){
 function renderRoster(){
   const F=H.gobs.filter(g=>g.dead),Gn=H.gobs.filter(g=>g.gone);
   $('roster').innerHTML=alive().map(g=>{const w=worst(g),lv=g.needs[w];
-    return '<li><button data-g="'+g.id+'" aria-current="'+(g.id===sel)+'"><span class="rn">'+esc(g.name)+'</span><span class="rj">'+esc(g.job)+', '+mood(g.needs).toLowerCase()
-    +(lv>=2?', <span class="hot">'+NEEDW[w][lv].toLowerCase()+'</span>':'')+(g.wound?', <span class="hot">wounded</span>':'')+(g.hatchling?', hatchling':'')+'</span></button></li>'}).join('')
+    return '<li><button class="rbtn" data-g="'+g.id+'" aria-current="'+(g.id===sel)+'">'+portrait(g,40)+'<span><span class="rn">'+esc(g.name)+'</span><span class="rj">'+esc(g.job)+', '+mood(g.needs).toLowerCase()
+    +(lv>=2?', <span class="hot">'+NEEDW[w][lv].toLowerCase()+'</span>':'')+(g.wound?', <span class="hot">wounded</span>':'')+(g.hatchling?', hatchling':'')+'</span></span></button></li>'}).join('')
     +(F.length?'<li class="fallen">Fallen: '+F.map(g=>esc(g.name)+' (day '+g.diedDay+')').join(', ')+'</li>':'')+(Gn.length?'<li class="fallen">Taken: '+Gn.map(g=>esc(g.name)+' (day '+g.goneDay+')').join(', ')+'</li>':'');
 }
 function renderWeb(){
@@ -367,17 +553,18 @@ function renderWeb(){
     return '<line class="'+t.kind+(on?'':' dim')+'" x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+b[1].toFixed(1)+'"/>'}).join('');
   s+=LG.map(g=>{const[x,y]=pos[g.id];const ini=g.name.replace(/^Ol\u2019 /,'').charAt(0);
     return '<g class="node'+(g.id===sel?' sel':'')+'" data-g="'+g.id+'" tabindex="0" role="button" aria-label="'+esc(g.name)+'" style="opacity:'+(g.id===sel||lit.has(g.id)?1:.55)+'">'
-    +'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="22"/><text class="ini" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'">'+esc(ini)+'</text>'
+    +'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="22"/><g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')" clip-path="url(#pfclip)">'+portrait(g,40).replace('<svg ','<svg x="-20" y="-20" ')+'</g><circle class="ring" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="20"/>'
     +'<text x="'+x.toFixed(1)+'" y="'+(y+40).toFixed(1)+'">'+esc(g.name)+'</text></g>'}).join('');
-  $('web').innerHTML=s;
+  $('web').innerHTML='<defs><clipPath id="pfclip"><circle cx="0" cy="0" r="20"/></clipPath></defs>'+s;
 }
 function renderDetail(){
   const g=gob(sel);if(!g||g.dead||g.gone){$('detail').innerHTML='<p class="empty">Pick a goblin.</p>';return}
   const job=JOBS.find(j=>j.n===g.job)||{b:''};
   const ts=tiesOf(g.id).sort((x,y)=>['kin','friend','rival'].indexOf(x.kind)-['kin','friend','rival'].indexOf(y.kind));
   $('detail').innerHTML=
-    '<label class="seed" for="gname">Name</label><input id="gname" class="nm" value="'+esc(g.name)+'" autocomplete="off" spellcheck="false">'
-    +'<p class="job">'+esc(g.job)+' <span class="st">'+(g.hatchling?'Hatchling, ready for missions on day '+g.grownDay+', ':'')+(g.wound?'<span class="w">Wounded</span>':'Hale')+(g.out?', out today':', at home')+'</span></p><p class="blurb">'+esc(job.b)+'</p>'
+    '<div class="dhead"><figure class="cameo">'+portrait(g,120)+'<figcaption>'+esc(g.hatchling?'Hatchling':g.job)+'</figcaption></figure><div class="dname">'
+    +'<label class="seed" for="gname">Name</label><input id="gname" class="nm" value="'+esc(g.name)+'" autocomplete="off" spellcheck="false">'
+    +'<p class="job">'+esc(g.job)+' <span class="st">'+(g.hatchling?'Hatchling, ready for missions on day '+g.grownDay+', ':'')+(g.wound?'<span class="w">Wounded</span>':'Hale')+(g.out?', out today':', at home')+'</span></p><p class="blurb">'+esc(job.b)+'</p></div></div>'
     +'<h3>Knacks <span class="st">(out of '+KCAP+')</span></h3><div class="stats">'+STATS.map(s=>'<span>'+s+'</span><div class="track" aria-hidden="true"><span style="width:'+g.st[s]/KCAP*100+'%"></span></div><span class="v">'+g.st[s]+'</span>').join('')+'</div>'
     +'<h3>Needs</h3><ul class="needs">'+NEEDS.map(k=>{const v=g.needs[k];return '<li><span>'+k+'</span><span class="lv'+v+'">'+NEEDW[k][v]+' <span class="pips" aria-label="'+LEVELW[v]+'">'+'\u25CF'.repeat(v)+'\u25CB'.repeat(3-v)+'</span></span></li>'}).join('')+'</ul>'
     +'<p class="mood">Mood: <em>'+mood(g.needs)+'</em></p>'
@@ -516,7 +703,7 @@ function newGoblin(id){
   const acc=alive().some(g=>g.job==='Tax accountant');let job;do job=pick(JOBS);while(job.n==='Tax accountant'&&acc);
   const st={};STATS.forEach(k=>st[k]=ri(2,5));st[job.pri]+=ri(3,4);st[job.sec]+=ri(1,2);fixStats(st);
   const needs={};NEEDS.forEach(k=>needs[k]=0);
-  return {id,name,job:job.n,st,needs,quirks:shuffle(QUIRKS).slice(0,2),wound:0,dead:false,out:false,hatchling:true,grownDay:H.day+2,clutch:H.day};
+  return {id,name,look:hashStr(name),job:job.n,st,needs,quirks:shuffle(QUIRKS).slice(0,2),wound:0,dead:false,out:false,hatchling:true,grownDay:H.day+2,clutch:H.day};
 }
 function hatch(){
   if(!canHatch())return;const n=ri(1,3),base=Math.max(...H.gobs.map(g=>g.id))+1,cl=[];
@@ -554,7 +741,7 @@ function renderMissions(){
     $('mmain').innerHTML='<h2>'+MT[m.type].goal+'</h2><p class="seed" style="margin:0">'+(m.type==='Raid'?'No falling back. ':'')+(H.map.places[m.place]?esc(H.map.places[m.place].name)+'. ':'')+'Encounter '+(m.idx+1)+' of '+m.encs.length+', rolling '+MT[m.type].stat+'</p>'
       +'<p class="job" style="margin-top:6px">'+esc(e.hook)+'</p>'
       +'<div class="tokens" role="img" aria-label="'+e.left+' of '+e.total+' tokens left">'+Array.from({length:e.total},(_,i)=>'<i class="'+(i<e.left?'on':'')+'"></i>').join('')+'</div>'
-      +'<div class="party">'+m.party.map(gob).map(g=>'<span class="'+(g.dead?'x':g.wound?'w':'')+'">'+esc(g.name)+' '+MT[m.type].stat+' '+g.st[MT[m.type].stat]+(g.dead?' (dead)':g.wound?' (wounded)':'')+'</span>').join('')+'</div>'
+      +'<div class="party">'+m.party.map(gob).map(g=>'<span class="pm '+(g.dead?'x':g.wound?'w':'')+'">'+portrait(g,26,g.dead?'gone':'')+esc(g.name)+' '+MT[m.type].stat+' '+g.st[MT[m.type].stat]+(g.dead?' (dead)':g.wound?' (wounded)':'')+'</span>').join('')+'</div>'
       +'<div class="acts">'+(m.state==='rolling'?'<button class="main" data-m="roll">Roll the round</button>'+(m.type==='Raid'?'':'<button data-m="back">Fall back</button>'):m.state==='cleared'?'<button class="main" data-m="on">Press on</button><button data-m="back">Fall back</button>':'<button class="main" data-m="done">Back to the warren</button>')+'</div>'
       +'<ul class="log" id="mlog">'+m.log.map(l=>'<li class="'+l.c+'">'+esc(l.t)+'</li>').join('')+'</ul>';
     const lg=$('mlog');if(lg)lg.scrollTop=lg.scrollHeight;return}
@@ -562,7 +749,7 @@ function renderMissions(){
   const ty=MT[plan.type],T=planTokens(),ok=plan.party.length>=2&&T>=1;
   $('mmain').innerHTML='<h2>'+ty.goal+'</h2><p class="seed" style="margin:0">Rolls '+ty.stat+'. Eases '+ty.need+'. Pick 2 to 4 goblins, neediest first. Where they end up is up to fate.</p>'
     +'<div class="pick">'+alive().slice().sort((a,b)=>{const da=(a.out||a.hatchling)?1:0,db=(b.out||b.hatchling)?1:0;return da-db||b.needs[ty.need]-a.needs[ty.need]||b.st[ty.stat]-a.st[ty.stat]}).map(g=>{const on=plan.party.includes(g.id),dis=g.out||g.hatchling||(!on&&plan.party.length>=4);
-      return '<button data-m="gob" data-v="'+g.id+'" aria-pressed="'+on+'"'+(dis?' disabled':'')+'>'+esc(g.name)+'<small>'+ty.stat+' '+g.st[ty.stat]+', '+ty.need+' '+pipStr(g.needs[ty.need])+(g.wound?', wounded':'')+(g.out?', out today':'')+(g.hatchling?', hatchling':'')+'</small></button>'}).join('')+'</div>'
+      return '<button class="pbtn" data-m="gob" data-v="'+g.id+'" aria-pressed="'+on+'"'+(dis?' disabled':'')+'>'+portrait(g,34)+'<span>'+esc(g.name)+'<small>'+ty.stat+' '+g.st[ty.stat]+', '+ty.need+' '+pipStr(g.needs[ty.need])+(g.wound?', wounded':'')+(g.out?', out today':'')+(g.hatchling?', hatchling':'')+'</small></span></button>'}).join('')+'</div>'
     +'<div class="preview">'+(plan.party.length?(T?'<strong>'+T+' token'+(T===1?'':'s')+'</strong> over '+encCount(T)+' encounter'+(encCount(T)===1?'':'s')+' ('+split(T).join(', ')+').':'Nobody picked wants any '+ty.need.toLowerCase()+'. Nothing to go out for.')
       +(function(){const p=plan.party,ls=[];for(let i=0;i<p.length;i++)for(let j=i+1;j<p.length;j++){const k=tieBetween(p[i],p[j]);if(k==='friend'||k==='rival')ls.push(gob(p[i]).name+' and '+gob(p[j]).name+' are '+k+'s.')}return ls.length?'<br><span class="seed">'+esc(ls.join(' '))+'</span>':''})()
       :'The more they want it, the more there is to clear.')+'</div>'
